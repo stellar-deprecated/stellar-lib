@@ -7,8 +7,8 @@ var BigInteger = utils.jsbn.BigInteger;
 var Base = {};
 
 var alphabets = Base.alphabets = {
-  ripple  :  "rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz",
-  tipple  :  "RPShNAF39wBUDnEGHJKLM4pQrsT7VWXYZ2bcdeCg65jkm8ofqi1tuvaxyz",
+  ripple  :  "gpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz",
+  tipple  :  "GPShNAF39wBUDnERHJKLM4pQrsT7VWXYZ2bcdeCg65jkm8ofqi1tuvaxyz",
   bitcoin :  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 };
 

@@ -24,8 +24,8 @@ UInt160.width = 20;
 UInt160.prototype = extend({}, UInt.prototype);
 UInt160.prototype.constructor = UInt160;
 
-var ACCOUNT_ZERO = UInt160.ACCOUNT_ZERO = 'rrrrrrrrrrrrrrrrrrrrrhoLvTp';
-var ACCOUNT_ONE  = UInt160.ACCOUNT_ONE  = 'rrrrrrrrrrrrrrrrrrrrBZbvji';
+var ACCOUNT_ZERO = UInt160.ACCOUNT_ZERO = 'ggggggggggggggggggggghoLvTp';
+var ACCOUNT_ONE  = UInt160.ACCOUNT_ONE  = 'ggggggggggggggggggggBZbvji';
 var HEX_ZERO     = UInt160.HEX_ZERO     = '0000000000000000000000000000000000000000';
 var HEX_ONE      = UInt160.HEX_ONE      = '0000000000000000000000000000000000000001';
 var STR_ZERO     = UInt160.STR_ZERO     = utils.hexToString(HEX_ZERO);
@@ -56,7 +56,7 @@ UInt160.prototype.parse_json = function (j) {
     this._version_byte = Base.VER_ACCOUNT_ID;
   } else if (typeof j !== 'string') {
     this._value = NaN;
-  } else if (j[0] === 'r') {
+  } else if (j[0] === 'g') {
     this._value = Base.decode_check(Base.VER_ACCOUNT_ID, j);
     this._version_byte = Base.VER_ACCOUNT_ID;
   } else {
@@ -72,7 +72,7 @@ UInt160.prototype.parse_generic = function (j) {
   UInt.prototype.parse_generic.call(this, j);
 
   if (isNaN(this._value)) {
-    if ("string" === typeof j && j[0] === 'r') {
+    if ("string" === typeof j && j[0] === 'g') {
       this._value = Base.decode_check(Base.VER_ACCOUNT_ID, j);
     }
   }
