@@ -7,7 +7,7 @@ describe('KeyPair', function() {
   it('can generate an address', function () {
     var seed = Seed.from_json("masterpassphrase");
     var address = seed.get_key().get_address();
-    assert.strictEqual(address.to_json(), 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh');
+    assert.strictEqual(address.to_json(), 'gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh');
   });
 });
 

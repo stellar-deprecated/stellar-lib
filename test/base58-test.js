@@ -5,8 +5,8 @@ var config = require('./testutils').get_config();
 
 describe('Base58', function() {
   describe('Seed', function() {
-    it('saESc82Vun7Ta5EJRzGJbrXb5HNYk', function () {
-      var seed = Seed.from_json('saESc82Vun7Ta5EJRzGJbrXb5HNYk');
+    it('saESc82Vun7Ta5EJRzGJbgXb5HNYk', function () {
+      var seed = Seed.from_json('saESc82Vun7Ta5EJRzGJbgXb5HNYk');
       assert.strictEqual(seed.to_hex(), 'FF1CF838D02B2CF7B45BAC27F5F24F4F');
     });
     it('sp6iDHnmiPN7tQFHm5sCW59ax3hfE',  function () {

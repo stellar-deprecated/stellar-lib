@@ -6,16 +6,16 @@ describe('Serialized object', function() {
   describe('Serialized object', function() {
     it('From json and back', function() {
       var input_json = {
-        Account: 'r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
+        Account: 'g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
         Amount: '274579388',
-        Destination: 'r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
+        Destination: 'g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
         Fee: '15',
         Flags: 0,
         Paths: [[
           {
-            account:   'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
+            account:   'g3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
             currency:  'USD',
-            issuer:    'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV'
+            issuer:    'g3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV'
           },
           {
             currency: 'XRP'
@@ -23,7 +23,7 @@ describe('Serialized object', function() {
         ]],
         SendMax: {
           currency:  'USD',
-          issuer:    'r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
+          issuer:    'g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
           value:     '2.74579388'
         },
         Sequence: 351,
@@ -40,9 +40,9 @@ describe('Serialized object', function() {
     // and rippled was only informing of "transaction is invalid"
     it('should throw an Error when there is a missing field', function() {
       var input_json = {
-        Account: 'r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
+        Account: 'g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
         Amount: '274579388',
-        Destination: 'r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
+        Destination: 'g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS',
         Sequence: 351,
         SigningPubKey: '02854B06CE8F3E65323F89260E9E19B33DA3E01B30EA4CA172612DE77973FAC58A',
         TransactionType: 'Payment',

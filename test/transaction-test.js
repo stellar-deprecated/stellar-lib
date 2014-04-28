@@ -5,34 +5,34 @@ var Transaction = utils.load_module('transaction').Transaction;
 describe('Transaction', function() {
   it('Serialization', function() {
     var input_json = {
-      Account : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+      Account : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
       Amount : {
         currency : "LTC",
-        issuer : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+        issuer : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
         value : "9.985"
       },
-      Destination : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+      Destination : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
       Fee : "15",
       Flags : 0,
       Paths : [
         [
           {
-            account : "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+            account : "gMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
             currency : "USD",
-            issuer : "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+            issuer : "gMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
             type : 49,
             type_hex : "0000000000000031"
           },
           {
             currency : "LTC",
-            issuer : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            issuer : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             type : 48,
             type_hex : "0000000000000030"
           },
           {
-            account : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            account : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             currency : "LTC",
-            issuer : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            issuer : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             type : 49,
             type_hex : "0000000000000031"
           }
@@ -40,7 +40,7 @@ describe('Transaction', function() {
       ],
       SendMax : {
         currency : "USD",
-        issuer : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+        issuer : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
         value : "30.30993068"
       },
       Sequence : 415,
@@ -56,34 +56,34 @@ describe('Transaction', function() {
 
   it('Hashing', function() {
     var input_json = {
-      Account : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+      Account : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
       Amount : {
         currency : "LTC",
-        issuer : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+        issuer : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
         value : "9.985"
       },
-      Destination : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+      Destination : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
       Fee : "15",
       Flags : 0,
       Paths : [
         [
           {
-            account : "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+            account : "gMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
             currency : "USD",
-            issuer : "rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
+            issuer : "gMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q",
             type : 49,
             type_hex : "0000000000000031"
           },
           {
             currency : "LTC",
-            issuer : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            issuer : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             type : 48,
             type_hex : "0000000000000030"
           },
           {
-            account : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            account : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             currency : "LTC",
-            issuer : "rfYv1TXnwgDDK4WQNbFALykYuEBnrR4pDX",
+            issuer : "gfYv1TXnwrDDK4WQNbFALykYuEBngR4pDX",
             type : 49,
             type_hex : "0000000000000031"
           }
@@ -91,7 +91,7 @@ describe('Transaction', function() {
       ],
       SendMax : {
         currency : "USD",
-        issuer : "r4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
+        issuer : "g4qLSAzv4LZ9TLsR7diphGwKnSEAMQTSjS",
         value : "30.30993068"
       },
       Sequence : 415,
