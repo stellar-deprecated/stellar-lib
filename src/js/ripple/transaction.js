@@ -476,6 +476,14 @@ Transaction.prototype.transferRate = function(rate) {
   return this;
 };
 
+// --> acc: Account
+Transaction.prototype.inflationDest = function(acc) {
+  this.tx_json.InflationDest = UInt160.json_rewrite(acc);
+
+  return this;
+};
+
+
 // Add flags to a transaction.
 // --> flags: undefined, _flag_, or [ _flags_ ]
 Transaction.prototype.setFlags = function(flags) {

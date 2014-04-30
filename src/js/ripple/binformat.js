@@ -143,7 +143,8 @@ var FIELDS_MAP = exports.fields = {
     3: 'Destination',
     4: 'Issuer',
     7: 'Target',
-    8: 'RegularKey'
+    8: 'RegularKey',
+    9: 'InflationDest'
   },
   14: { // Object
     1: void(0),  //end of Object
@@ -223,7 +224,8 @@ exports.tx = {
     [ 'WalletSize'         , OPTIONAL ],
     [ 'MessageKey'         , OPTIONAL ],
     [ 'Domain'             , OPTIONAL ],
-    [ 'TransferRate'       , OPTIONAL ]
+    [ 'TransferRate'       , OPTIONAL ],
+    [ 'InflationDest'      , OPTIONAL ]
   ]),
   TrustSet: [20].concat(base, [
     [ 'LimitAmount'        , OPTIONAL ],
