@@ -128,6 +128,9 @@ Transaction.flags = {
     DisallowXRP:        0x00100000,
     AllowXRP:           0x00200000
   },
+  
+  AccountDelete: {
+  },
 
   TrustSet: {
     SetAuth:            0x00010000,
@@ -528,6 +531,28 @@ Transaction.prototype.accountSet = function(src) {
 
   this.tx_json.TransactionType  = 'AccountSet';
   this.tx_json.Account          = UInt160.json_rewrite(src);
+  return this;
+};
+
+
+Transaction.prototype.accountDelete = function(src, dst) {
+  if (typeof src === 'object') {
+    var options = src;
+    src  = options.source || options.from;
+	dst  = options.destination || options.to;
+  }
+
+  if (!UInt160.is_valid(src)) {
+    throw new Error('Source address invalid');
+  }
+
+  if (!UInt160.is_valid(dst)) {
+    throw new Error('Destination address invalid');
+  }
+  
+  this.tx_json.TransactionType  = 'AccountDelete';
+  this.tx_json.Account          = UInt160.json_rewrite(src);
+  this.tx_json.Destionation     = UInt160.json_rewrite(dst);
   return this;
 };
 

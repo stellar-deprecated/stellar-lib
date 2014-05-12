@@ -227,6 +227,9 @@ exports.tx = {
     [ 'TransferRate'       , OPTIONAL ],
     [ 'InflationDest'      , OPTIONAL ]
   ]),
+  AccountDelete: [4].concat(base, [
+    [ 'Destination'        , REQUIRED ]
+  ]),
   TrustSet: [20].concat(base, [
     [ 'LimitAmount'        , OPTIONAL ],
     [ 'QualityIn'          , OPTIONAL ],
