@@ -552,7 +552,7 @@ Transaction.prototype.accountDelete = function(src, dst) {
   
   this.tx_json.TransactionType  = 'AccountDelete';
   this.tx_json.Account          = UInt160.json_rewrite(src);
-  this.tx_json.Destionation     = UInt160.json_rewrite(dst);
+  this.tx_json.Destination     = UInt160.json_rewrite(dst);
   return this;
 };
 
