@@ -42,7 +42,7 @@ Currency.prototype.parse_json = function (j, shouldInterpretXrpAsIou) {
 
   switch (typeof j) {
     case 'string':
-      if (!j || /^(0|XRP)$/.test(j)) {
+      if (!j || /^(0|STR)$/.test(j)) {
         if (shouldInterpretXrpAsIou) {
           this.parse_hex(Currency.HEX_CURRENCY_BAD);
         } else {
@@ -89,7 +89,7 @@ Currency.prototype._update = function () {
   var isZeroExceptInStandardPositions = true;
 
   if (!bytes) {
-    return "XRP";
+    return "STR";
   }
 
   this._native = false;
@@ -109,7 +109,7 @@ Currency.prototype._update = function () {
 
     if (this._iso_code === "\0\0\0") {
       this._native = true;
-      this._iso_code = "XRP";
+      this._iso_code = "STR";
     }
 
     this._type = 0;
@@ -194,7 +194,7 @@ Currency.prototype.get_interest_at = function (referenceDate) {
 Currency.prototype.to_json = function () {
   if (!this.is_valid()) {
     // XXX This is backwards compatible behavior, but probably not very good.
-    return "XRP";
+    return "STR";
   }
 
   // Any currency with standard properties and a valid code can be abbreviated
