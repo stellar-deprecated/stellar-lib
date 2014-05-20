@@ -70,7 +70,7 @@ var FIELDS_MAP = exports.fields = {
     23: 'BondAmount',
     24: 'LoadFee',
     25: 'OfferSequence',
-    26: 'FirstLedgerSequence',
+    26: 'InflateSeq',
     27: 'LastLedgerSequence',
     28: 'TransactionIndex',
     29: 'OperationLimit',
@@ -253,6 +253,9 @@ exports.tx = {
     [ 'Paths'              , DEFAULT  ],
     [ 'InvoiceID'          , OPTIONAL ],
     [ 'DestinationTag'     , OPTIONAL ]
+  ]),
+  Inflation: [1].concat(base, [
+    [ 'InflateSeq'         , REQUIRED ]
   ]),
   Contract: [9].concat(base, [
     [ 'Expiration'         , REQUIRED ],

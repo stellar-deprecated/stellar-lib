@@ -132,6 +132,9 @@ Transaction.flags = {
   AccountDelete: {
   },
 
+  Inflation:{
+  },
+
   TrustSet: {
     SetAuth:            0x00010000,
     NoRipple:           0x00020000,
@@ -539,7 +542,7 @@ Transaction.prototype.accountDelete = function(src, dst) {
   if (typeof src === 'object') {
     var options = src;
     src  = options.source || options.from;
-	dst  = options.destination || options.to;
+    dst  = options.destination || options.to;
   }
 
   if (!UInt160.is_valid(src)) {
@@ -552,7 +555,25 @@ Transaction.prototype.accountDelete = function(src, dst) {
   
   this.tx_json.TransactionType  = 'AccountDelete';
   this.tx_json.Account          = UInt160.json_rewrite(src);
-  this.tx_json.Destination     = UInt160.json_rewrite(dst);
+  this.tx_json.Destination      = UInt160.json_rewrite(dst);
+  return this;
+};
+
+
+Transaction.prototype.inflation = function(src, sequence) {
+  if (typeof src === 'object') {
+    var options = src;
+    src  = options.source || options.from;
+    sequence  = options.sequence;
+  }
+
+  if (!UInt160.is_valid(src)) {
+    throw new Error('Source address invalid');
+  }
+
+  this.tx_json.TransactionType  = 'Inflation';
+  this.tx_json.Account          = UInt160.json_rewrite(src);
+  this.tx_json.InflateSeq       = sequence;
   return this;
 };
 
