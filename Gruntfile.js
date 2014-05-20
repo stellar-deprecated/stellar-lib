@@ -51,25 +51,25 @@ module.exports = function(grunt) {
       options: {
         entry: "./src/js/ripple/index.js",
         output: {
-          library: "ripple"
+          library: "stellar"
         },
         cache: true
       },
       lib: {
         output: {
-          filename: "build/ripple-<%= pkg.version %>.js"
+          filename: "build/stellar-<%= pkg.version %>.js"
         }
       },
       lib_debug: {
         output: {
-          filename: "build/ripple-<%= pkg.version %>-debug.js"
+          filename: "build/stellar-<%= pkg.version %>-debug.js"
         },
         debug: true,
         devtool: 'eval'
       },
       lib_min: {
         output: {
-          filename: "build/ripple-<%= pkg.version %>-min.js"
+          filename: "build/stellar-<%= pkg.version %>-min.js"
         },
         optimize: {
           minimize: true
