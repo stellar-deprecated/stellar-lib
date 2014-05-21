@@ -1129,7 +1129,7 @@ Remote.prototype.requestBookOffers = function(gets, pays, taker, callback) {
     currency: Currency.json_rewrite(gets.currency)
   };
 
-  if (request.message.taker_gets.currency !== 'XRP') {
+  if (request.message.taker_gets.currency !== 'XTR') {
     request.message.taker_gets.issuer = UInt160.json_rewrite(gets.issuer);
   }
 
@@ -1137,7 +1137,7 @@ Remote.prototype.requestBookOffers = function(gets, pays, taker, callback) {
     currency: Currency.json_rewrite(pays.currency)
   }
 
-  if (request.message.taker_pays.currency !== 'XRP') {
+  if (request.message.taker_pays.currency !== 'XTR') {
     request.message.taker_pays.issuer = UInt160.json_rewrite(pays.issuer);
   }
 
@@ -1349,7 +1349,7 @@ Remote.prototype.pathFind = function(src_account, dst_account, dst_amount, src_c
 };
 
 Remote.prepareTrade = function(currency, issuer) {
-  return currency + (currency === 'XRP' ? '' : ('/' + issuer));
+  return currency + (currency === 'XTR' ? '' : ('/' + issuer));
 };
 
 Remote.prototype.book = function(currency_gets, issuer_gets, currency_pays, issuer_pays) {

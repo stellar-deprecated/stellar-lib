@@ -528,7 +528,7 @@ var STPathSet = exports.PathSet = new SerializedType({
         if (tag_byte & this.typeCurrency) {
           //console.log('entry.currency');
           entry.currency = STCurrency.parse(so);
-          if (entry.currency.to_json() === "XRP" &&
+          if (entry.currency.to_json() === "XTR" &&
               !entry.currency.is_native()) {
             entry.non_native = true;
           }
