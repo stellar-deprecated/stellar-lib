@@ -44,17 +44,13 @@ UInt160.prototype.get_version = function () {
 // value = NaN on error.
 UInt160.prototype.parse_json = function (j) {
   // Canonicalize and validate
+
+    // TODO: this is gross. Inject test accounts a different way
   if (config.accounts && j in config.accounts) {
     j = config.accounts[j].account;
   }
 
-  if (typeof j === 'number' && !isNaN(j)) {
-    // Allow raw numbers - DEPRECATED
-    // This is used mostly by the test suite and is supported
-    // as a legacy feature only. DO NOT RELY ON THIS BEHAVIOR.
-    this._value = new BigInteger(String(j));
-    this._version_byte = Base.VER_ACCOUNT_ID;
-  } else if (typeof j !== 'string') {
+  if (typeof j !== 'string') {
     this._value = NaN;
   } else if (j[0] === 'g') {
     this._value = Base.decode_check(Base.VER_ACCOUNT_ID, j);
