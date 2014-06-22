@@ -9,14 +9,16 @@
 //   balance_proposed
 //
 
-// var network = require("./network.js");
-
-var EventEmitter       = require('events').EventEmitter;
+// var network = require('./network.js');
+var async              = require('async');
 var util               = require('util');
 var extend             = require('extend');
+var EventEmitter       = require('events').EventEmitter;
 var Amount             = require('./amount').Amount;
 var UInt160            = require('./uint160').UInt160;
 var TransactionManager = require('./transactionmanager').TransactionManager;
+var sjcl               = require('./utils').sjcl;
+var Base               = require('./base').Base;
 
 /**
  * @constructor Account
@@ -29,10 +31,10 @@ function Account(remote, account) {
 
   var self = this;
 
-  this._remote     = remote;
-  this._account    = UInt160.from_json(account);
+  this._remote = remote;
+  this._account = UInt160.from_json(account);
   this._account_id = this._account.to_json();
-  this._subs       = 0;
+  this._subs = 0;
 
   // Ledger entry object
   // Important: This must never be overwritten, only extend()-ed
@@ -73,7 +75,9 @@ function Account(remote, account) {
   this._remote.on('prepare_subscribe', attachAccount);
 
   function handleTransaction(transaction) {
-    if (!transaction.mmeta) return;
+    if (!transaction.mmeta) {
+      return;
+    }
 
     var changed = false;
 
@@ -135,7 +139,7 @@ Account.prototype.getInfo = function(callback) {
  * Retrieve the current AccountRoot entry.
  *
  * To keep up-to-date with changes to the AccountRoot entry, subscribe to the
- * "entry" event.
+ * 'entry' event.
  *
  * @param {Function} callback
  */
@@ -162,11 +166,14 @@ Account.prototype.entry = function(callback) {
 Account.prototype.getNextSequence = function(callback) {
   var callback = typeof callback === 'function' ? callback : function(){};
 
+  function isNotFound(err) {
+    return err && typeof err === 'object'
+    && typeof err.remote === 'object'
+    && err.remote.error === 'actNotFound';
+  };
+
   function accountInfo(err, info) {
-    if (err &&
-        "object" === typeof err &&
-        "object" === typeof err.remote &&
-        err.remote.error === "actNotFound") {
+    if (isNotFound(err)) {
       // New accounts will start out as sequence zero
       callback(null, 0);
     } else if (err) {
@@ -185,7 +192,7 @@ Account.prototype.getNextSequence = function(callback) {
  * Retrieve this account's Ripple trust lines.
  *
  * To keep up-to-date with changes to the AccountRoot entry, subscribe to the
- * "lines" event. (Not yet implemented.)
+ * 'lines' event. (Not yet implemented.)
  *
  * @param {function(err, lines)} callback Called with the result
  */
@@ -218,23 +225,27 @@ Account.prototype.lines = function(callback) {
  * @returns {Account}
  */
 
-Account.prototype.line = function(currency,address,callback) {
+Account.prototype.line = function(currency, address, callback) {
   var self = this;
-  var found;
   var callback = typeof callback === 'function' ? callback : function(){};
 
   self.lines(function(err, data) {
     if (err) {
-      callback(err);
-    } else {
-      var line = data.lines.filter(function(line) {
-        if (line.account === address && line.currency === currency) {
-          return line;
-        }
-      })[0];
-
-      callback(null, line);
+      return callback(err);
     }
+
+    var line;
+
+    top:
+    for (var i=0; i<data.lines.length; i++) {
+      var l = data.lines[i];
+      if (l.account === address && l.currency === currency) {
+        line = l;
+        break top;
+      }
+    }
+
+    callback(null, line);
   });
 
   return this;
@@ -254,17 +265,21 @@ Account.prototype.notifyTx = function(transaction) {
   // Only trigger the event if the account object is actually
   // subscribed - this prevents some weird phantom events from
   // occurring.
-  if (this._subs) {
-    this.emit('transaction', transaction);
-
-    var account = transaction.transaction.Account;
-
-    if (!account) return;
-
-    var isThisAccount = account === this._account_id;
-
-    this.emit(isThisAccount ? 'transaction-outbound' : 'transaction-inbound', transaction);
+  if (!this._subs) {
+    return;
   }
+
+  this.emit('transaction', transaction);
+
+  var account = transaction.transaction.Account;
+
+  if (!account) {
+    return;
+  }
+
+  var isThisAccount = (account === this._account_id);
+
+  this.emit(isThisAccount ? 'transaction-outbound' : 'transaction-inbound', transaction);
 };
 
 /**
@@ -276,6 +291,104 @@ Account.prototype.notifyTx = function(transaction) {
 
 Account.prototype.submit = function(transaction) {
   this._transactionManager.submit(transaction);
+};
+
+
+/**
+ *  Check whether the given public key is valid for this account
+ *
+ *  @param {Hex-encoded String|RippleAddress} public_key
+ *  @param {Function} callback
+ *
+ *  @callback
+ *  @param {Error} err
+ *  @param {Boolean} true if the public key is valid and active, false otherwise
+ */
+Account.prototype.publicKeyIsActive = function(public_key, callback) {
+  var self = this;
+  var public_key_as_uint160;
+
+  try {
+    public_key_as_uint160 = Account._publicKeyToAddress(public_key);
+  } catch (err) {
+    return callback(err);
+  }
+
+  function getAccountInfo(async_callback) {
+    self.getInfo(function(err, account_info_res){
+
+      // If the remote responds with an Account Not Found error then the account
+      // is unfunded and thus we can assume that the master key is active
+      if (err && err.remote && err.remote.error === 'actNotFound') {
+        async_callback(null, null);
+      } else {
+        async_callback(err, account_info_res);
+      }
+    });
+  };
+
+  function publicKeyIsValid(account_info_res, async_callback) {
+    // Catch the case of unfunded accounts
+    if (!account_info_res) {
+
+      if (public_key_as_uint160 === self._account_id) {
+        async_callback(null, true);
+      } else {
+        async_callback(null, false);
+      }
+
+      return;
+    }
+
+    var account_info = account_info_res.account_data;
+
+    // Respond with true if the RegularKey is set and matches the given public key or
+    // if the public key matches the account address and the lsfDisableMaster is not set
+    if (account_info.RegularKey &&
+      account_info.RegularKey === public_key_as_uint160) {
+      async_callback(null, true);
+    } else if (account_info.Account === public_key_as_uint160 &&
+      ((account_info.Flags & 0x00100000) === 0)) {
+      async_callback(null, true);
+    } else {
+      async_callback(null, false);
+    }
+  };
+
+  var steps = [
+    getAccountInfo,
+    publicKeyIsValid
+  ];
+
+  async.waterfall(steps, callback);
+};
+
+/**
+ *  Convert a hex-encoded public key to a Ripple Address
+ *
+ *  @static
+ *
+ *  @param {Hex-encoded string|RippleAddress} public_key
+ *  @returns {RippleAddress}
+ */
+Account._publicKeyToAddress = function(public_key) {
+  // Based on functions in /src/js/ripple/keypair.js
+  function hexToUInt160(public_key) {
+    var bits = sjcl.codec.hex.toBits(public_key);
+    var hash = sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+    var address = UInt160.from_bits(hash);
+    address.set_version(Base.VER_ACCOUNT_ID);
+
+    return address.to_json();
+  };
+
+  if (UInt160.is_valid(public_key)) {
+    return public_key;
+  } else if (/^[0-9a-fA-F]+$/.test(public_key)) {
+    return hexToUInt160(public_key);
+  } else {
+    throw new Error('Public key is invalid. Must be a UInt160 or a hex string');
+  }
 };
 
 exports.Account = Account;

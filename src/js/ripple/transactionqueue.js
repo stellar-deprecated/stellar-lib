@@ -3,56 +3,13 @@
  * Manager for pending transactions
  */
 
+var LRU = require('lru-cache');
 var Transaction = require('./transaction').Transaction;
 
 function TransactionQueue() {
-  var self = this;
-
-  this._queue         = [ ];
-  this._idCache       = { };
-  this._sequenceCache = { };
-  this._save          = void(0);
-};
-
-TransactionQueue.prototype.clearCache = function() {
-  this._idCache       = { };
-  this._sequenceCache = { };
-};
-
-TransactionQueue.prototype.getMinLedger = function() {
-  var minLedger = Infinity;
-
-  for (var i=0; i<this._queue.length; i++) {
-    var submitIndex = this._queue[i].submitIndex;
-
-    if (typeof submitIndex !== 'number') {
-      // If any pending transactions don't have a submit index,
-      // return -1 for scanning all previous transactions
-      minLedger = -1;
-      break;
-    }
-
-    if (submitIndex < minLedger) {
-      minLedger = submitIndex;
-    }
-  };
-
-  if (!isFinite(minLedger)) minLedger = -1;
-
-  if (minLedger !== -1) minLedger -= 1;
-
-  return minLedger;
-};
-
-TransactionQueue.prototype.save = function() {
-  if (typeof this._save !== 'function') return;
-
-  this._save(this._queue.map(function(tx) {
-    return {
-      tx_json: tx.tx_json,
-      submittedIDs: tx.submittedIDs
-    }
-  }));
+  this._queue = [ ];
+  this._idCache = LRU();
+  this._sequenceCache = LRU();
 };
 
 /**
@@ -60,23 +17,7 @@ TransactionQueue.prototype.save = function() {
  */
 
 TransactionQueue.prototype.addReceivedSequence = function(sequence) {
-  this._sequenceCache[sequence] = true;
-};
-
-/**
- * Store received (validated) ID transaction
- */
-
-TransactionQueue.prototype.addReceivedId = function(id, transaction) {
-  this._idCache[id] = transaction;
-};
-
-/**
- * Get received (validated) transaction by ID
- */
-
-TransactionQueue.prototype.getReceived = function(id) {
-  return this._idCache[id];
+  this._sequenceCache.set(String(sequence), true);
 };
 
 /**
@@ -85,7 +26,23 @@ TransactionQueue.prototype.getReceived = function(id) {
  */
 
 TransactionQueue.prototype.hasSequence = function(sequence) {
-  return this._sequenceCache[sequence] || false;
+  return this._sequenceCache.has(String(sequence));
+};
+
+/**
+ * Store received (validated) ID transaction
+ */
+
+TransactionQueue.prototype.addReceivedId = function(id, transaction) {
+  this._idCache.set(id, transaction);
+};
+
+/**
+ * Get received (validated) transaction by ID
+ */
+
+TransactionQueue.prototype.getReceived = function(id) {
+  return this._idCache.get(id);
 };
 
 /**
@@ -93,10 +50,10 @@ TransactionQueue.prototype.hasSequence = function(sequence) {
  * may have multiple associated IDs.
  */
 
-TransactionQueue.prototype.getSubmission = function(id, callback) {
-  var result = false;
+TransactionQueue.prototype.getSubmission = function(id) {
+  var result = void(0);
 
-  for (var i=0, tx; tx=this._queue[i]; i++) {
+  for (var i=0, tx; (tx=this._queue[i]); i++) {
     if (~tx.submittedIDs.indexOf(id)) {
       result = tx;
       break;
@@ -114,30 +71,32 @@ TransactionQueue.prototype.remove = function(tx) {
   // ND: We are just removing the Transaction by identity
   var i = this._queue.length;
 
+  if (typeof tx === 'string') {
+    tx = this.getSubmission(tx);
+  }
+
+  if (!(tx instanceof Transaction)) {
+    return;
+  }
+
   while (i--) {
     if (this._queue[i] === tx) {
       this._queue.splice(i, 1);
       break;
     }
   }
-
-  if (!this._queue.length) {
-    this.clearCache();
-  }
-
-  this.save();
 };
 
 TransactionQueue.prototype.push = function(tx) {
   this._queue.push(tx);
-  this.save();
 };
 
 TransactionQueue.prototype.forEach = function(fn) {
   this._queue.forEach(fn);
 };
 
-TransactionQueue.prototype.length = function() {
+TransactionQueue.prototype.length =
+TransactionQueue.prototype.getLength = function() {
   return this._queue.length;
 };
 
