@@ -167,8 +167,8 @@ Account.prototype.getNextSequence = function(callback) {
         "object" === typeof err &&
         "object" === typeof err.remote &&
         err.remote.error === "actNotFound") {
-      // New accounts will start out as sequence zero
-      callback(null, 0);
+      // New accounts will start out as sequence one
+      callback(null, 1);
     } else if (err) {
       callback(err);
     } else {
