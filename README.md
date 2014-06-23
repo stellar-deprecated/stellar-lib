@@ -1,64 +1,64 @@
-#The Ripple JavaScript Library
+#The Stellar JavaScript Library
 
-[![Build Status](https://travis-ci.org/ripple/ripple-lib.svg?branch=develop)](https://travis-ci.org/ripple/ripple-lib) [![Coverage Status](https://coveralls.io/repos/ripple/ripple-lib/badge.png?branch=develop)](https://coveralls.io/r/ripple/ripple-lib?branch=develop)
+[![Build Status](https://travis-ci.org/stellar/stellar-lib.svg?branch=develop)](https://travis-ci.org/stellar/stellar-lib) [![Coverage Status](https://coveralls.io/repos/stellar/stellar-lib/badge.png?branch=develop)](https://coveralls.io/r/stellar/stellar-lib?branch=develop)
 
-[![NPM](https://nodei.co/npm/ripple-lib.png)](https://www.npmjs.org/package/ripple-lib)
+[![NPM](https://nodei.co/npm/stellar-lib.png)](https://www.npmjs.org/package/stellar-lib)
 
-`ripple-lib` connects to the Ripple network via the WebSocket protocol and runs in Node.js as well as in the browser.
+`stellar-lib` connects to the Stellar network via the WebSocket protocol and runs in Node.js as well as in the browser.
 
-###Use ripple-lib for:
+###Use stellar-lib for:
 
-+ Connecting to a local or remote rippled in JavaScript (Node.js or browser)
-+ Issuing [rippled API](https://ripple.com/wiki/JSON_Messages) requests
-+ Listening to events on the Ripple network (transaction, ledger, etc.)
-+ Signing and submitting transactions to the Ripple network
++ Connecting to a local or remote stellard in JavaScript (Node.js or browser)
++ Issuing [stellard API](https://stellar.com/wiki/JSON_Messages) requests
++ Listening to events on the stellar network (transaction, ledger, etc.)
++ Signing and submitting transactions to the stellar network
 
 ###In this file:
 
 1. Overview
-2. [Getting `ripple-lib`](README.md#getting-ripple-lib)
+2. [Getting `stellar-lib`](README.md#getting-stellar-lib)
 3. [Quickstart](README.md#quickstart)
-4. [Running tests](https://github.com/ripple/ripple-lib#running-tests)
+4. [Running tests](https://github.com/stellar/stellar-lib#running-tests)
 
 ###For additional documentation see:
 
-1. [The `ripple-lib` Guides (docs/GUIDES.md)](docs/GUIDES.md)
-2. [The `ripple-lib` API Reference (docs/REFERENCE.md)](docs/REFERENCE.md)
-3. https://ripple.com/wiki/Ripple_JavaScript_library
+1. [The `stellar-lib` Guides (docs/GUIDES.md)](docs/GUIDES.md)
+2. [The `stellar-lib` API Reference (docs/REFERENCE.md)](docs/REFERENCE.md)
+3. https://stellar.com/wiki/stellar_JavaScript_library
 
 ###Also see:
 
-+ https://ripple.com/wiki  
-+ https://ripple.com
++ https://wiki.gostellar.org
++ https://gostellar.org
 
-##Getting `ripple-lib`
+##Getting `stellar-lib`
 
 **Via npm for Node.js**
 
 ```
-  $ npm install ripple-lib
+  $ npm install stellar-lib
 ```
 
 **Build from the source using `grunt`**
 
 ```
-  $ git clone https://github.com/ripple/ripple-lib
+  $ git clone https://github.com/stellar/stellar-lib
   $ npm install
   $ grunt
 ```
 
-Then use the minified `build/ripple-*-min.js` in your webpage
+Then use the minified `build/stellar-*-min.js` in your webpage
 
 ##Quickstart
 
-`Remote` ([remote.js](https://github.com/ripple/ripple-lib/blob/develop/src/js/ripple/remote.js)) is the module responsible for managing connections to `rippled` servers:
+`Remote` ([remote.js](https://github.com/stellar/stellar-lib/blob/develop/src/js/stellar/remote.js)) is the module responsible for managing connections to `stellard` servers:
 
 ```js
-/* Loading ripple-lib with Node.js */
-var Remote = require('ripple-lib').Remote;
+/* Loading stellar-lib with Node.js */
+var Remote = require('stellar-lib').Remote;
 
-/* Loading ripple-lib in a webpage */
-// var Remote = ripple.Remote;
+/* Loading stellar-lib in a webpage */
+// var Remote = stellar.Remote;
 
 var remote = new Remote({
   // see the API Reference for available options
@@ -68,7 +68,7 @@ var remote = new Remote({
   fee_cushion:     1.5,
   servers: [
     {
-        host:    's1.ripple.com'
+        host:    's1.stellar.com'
       , port:    443
       , secure:  true
     }
@@ -82,7 +82,7 @@ remote.connect(function() {
 });
 ```
 
-See [The `ripple-lib` Guides](docs/GUIDES.md) and [The `ripple-lib` API Reference](docs/REFERENCE.md) for walkthroughs and details about all of the available functions and options.
+See [The `stellar-lib` Guides](docs/GUIDES.md) and [The `stellar-lib` API Reference](docs/REFERENCE.md) for walkthroughs and details about all of the available functions and options.
 
 ##Running tests
 
@@ -94,4 +94,4 @@ See [The `ripple-lib` Guides](docs/GUIDES.md) and [The `ripple-lib` API Referenc
 
 **Generating code coverage**
 
-ripple-lib uses `istanbul` to generate code coverage. To create a code coverage report, run `npm test --coverage`. The report will be created in `coverage/lcov-report/`.
+stellar-lib uses `istanbul` to generate code coverage. To create a code coverage report, run `npm test --coverage`. The report will be created in `coverage/lcov-report/`.
