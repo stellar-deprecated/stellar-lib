@@ -617,7 +617,7 @@ Amount.prototype.parse_human = function(j, opts) {
   var m = String(j).match(Amount.human_RE);
 
   if (m) {
-    var currency   = m[1] || m[5] || 'XTR';
+    var currency   = m[1] || m[5] || 'STR';
     var integer    = m[3] || '0';
     var fraction   = m[4] || '';
     var precision  = null;
@@ -627,8 +627,8 @@ Amount.prototype.parse_human = function(j, opts) {
     this._value = new BigInteger(integer);
     this.set_currency(currency);
 
-    // XTR have exactly six digits of precision
-    if (currency === 'XTR') {
+    // STR have exactly six digits of precision
+    if (currency === 'STR') {
       fraction = fraction.slice(0, 6);
       while (fraction.length < 6) {
         fraction += '0';
@@ -808,7 +808,7 @@ Amount.prototype.parse_json = function(j) {
         j.copyTo(this);
       } else if (j.hasOwnProperty('value')) {
         // Parse the passed value to sanitize and copy it.
-        this._currency.parse_json(j.currency, true); // Never XTR.
+        this._currency.parse_json(j.currency, true); // Never STR.
 
         if (typeof j.issuer === 'string') {
           this._issuer.parse_json(j.issuer);
@@ -825,7 +825,7 @@ Amount.prototype.parse_json = function(j) {
   return this;
 };
 
-// Parse a XTR value from untrusted input.
+// Parse a STR value from untrusted input.
 // - integer = raw units
 // - float = with precision 6
 // XXX Improvements: disallow leading zeros.
@@ -1169,7 +1169,7 @@ Amount.prototype.to_json = function() {
 Amount.prototype.to_text_full = function(opts) {
   return this._value instanceof BigInteger
     ? this._is_native
-      ? this.to_human() + '/XTR'
+      ? this.to_human() + '/STR'
       : this.to_text() + '/' + this._currency.to_json() + '/' + this._issuer.to_json(opts)
     : NaN;
 };
@@ -1194,7 +1194,7 @@ Amount.prototype.not_equals_why = function(d, ignore_issuer) {
     } else if (this._is_native !== d._is_native) {
       result = 'Native mismatch.';
     } else {
-      var type = this._is_native ? 'XTR' : 'Non-XTR';
+      var type = this._is_native ? 'STR' : 'Non-STR';
 
       if (!this._value.equals(d._value) || this._offset !== d._offset) {
         result = type + ' value differs.';
@@ -1202,9 +1202,9 @@ Amount.prototype.not_equals_why = function(d, ignore_issuer) {
         result = type + ' sign differs.';
       } else if (!this._is_native) {
         if (!this._currency.equals(d._currency)) {
-          result = 'Non-XTR currency differs.';
+          result = 'Non-STR currency differs.';
         } else if (!ignore_issuer && !this._issuer.equals(d._issuer)) {
-          result = 'Non-XTR issuer differs: ' + d._issuer.to_json() + '/' + this._issuer.to_json();
+          result = 'Non-STR issuer differs: ' + d._issuer.to_json() + '/' + this._issuer.to_json();
         }
       }
     }

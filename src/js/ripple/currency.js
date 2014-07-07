@@ -70,7 +70,7 @@ Currency.prototype.parse_json = function(j, shouldInterpretXrpAsIou) {
 
   switch (typeof j) {
     case 'string':
-      if (!j || /^(0|XTR)$/.test(j)) {
+      if (!j || /^(0|STR)$/.test(j)) {
         if (shouldInterpretXrpAsIou) {
           this.parse_hex(Currency.HEX_CURRENCY_BAD);
         } else {
@@ -178,7 +178,7 @@ Currency.prototype._update = function() {
   var isZeroExceptInStandardPositions = true;
 
   if (!bytes) {
-    return "XTR";
+    return "STR";
   }
 
   this._native = false;
@@ -198,7 +198,7 @@ Currency.prototype._update = function() {
 
     if (this._iso_code === '\0\0\0') {
       this._native = true;
-      this._iso_code = "XTR";
+      this._iso_code = "STR";
     }
 
     this._type = 0;
@@ -309,7 +309,7 @@ Currency.prototype.get_interest_percentage_at = function(referenceDate, decimals
 Currency.prototype.to_json = function(opts) {
   if (!this.is_valid()) {
     // XXX This is backwards compatible behavior, but probably not very good.
-    return "XTR";
+    return "STR";
   }
 
   var currency;

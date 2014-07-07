@@ -149,10 +149,10 @@ Meta.prototype.getAffectedBooks = function() {
     var pays = Amount.from_json(an.fields.TakerPays);
 
     var getsKey = gets.currency().to_json();
-    if (getsKey !== 'XTR') getsKey += '/' + gets.issuer().to_json();
+    if (getsKey !== 'STR') getsKey += '/' + gets.issuer().to_json();
 
     var paysKey = pays.currency().to_json();
-    if (paysKey !== 'XTR') paysKey += '/' + pays.issuer().to_json();
+    if (paysKey !== 'STR') paysKey += '/' + pays.issuer().to_json();
 
     var key = [ getsKey, paysKey ].join(':');
 

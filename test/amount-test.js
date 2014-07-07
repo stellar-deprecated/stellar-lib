@@ -18,7 +18,7 @@ describe('Amount', function() {
   });
   describe('text_full_rewrite', function() {
     it('Number 1', function() {
-      assert.strictEqual('0.000001/XTR', Amount.text_full_rewrite(1));
+      assert.strictEqual('0.000001/STR', Amount.text_full_rewrite(1));
     });
   });
   describe('json_rewrite', function() {
@@ -50,8 +50,8 @@ describe('Amount', function() {
     it('is_valid "1"', function() {
       assert(Amount.is_valid('1'));
     });
-    it('is_valid "1/XTR"', function() {
-      assert(Amount.is_valid('1/XTR'));
+    it('is_valid "1/STR"', function() {
+      assert(Amount.is_valid('1/STR'));
     });
     it('!is_valid NaN', function() {
       assert(!Amount.is_valid(NaN));
@@ -59,19 +59,19 @@ describe('Amount', function() {
     it('!is_valid "xx"', function() {
       assert(!Amount.is_valid('xx'));
     });
-      it('from_human("0.1 XTR")', function() {
+      it('from_human("0.1 STR")', function() {
 
-          assert.strictEqual(Amount.from_human('0.1 XTR')._value, 100000 );
+          assert.strictEqual(Amount.from_human('0.1 STR')._value, 100000 );
       });
 
-      it('from_human(".1 XTR")', function() {
+      it('from_human(".1 STR")', function() {
 
-          assert.strictEqual(Amount.from_human('.1 XTR')._value, 100000 );
+          assert.strictEqual(Amount.from_human('.1 STR')._value, 100000 );
       });
 
-      it('from_human("1 XTR")', function() {
+      it('from_human("1 STR")', function() {
 
-          assert.strictEqual(Amount.from_human('1 XTR')._value, 1000000 );
+          assert.strictEqual(Amount.from_human('1 STR')._value, 1000000 );
       });
 
 
@@ -89,25 +89,25 @@ describe('Amount', function() {
       assert.strictEqual('800/USD/'+config.accounts['mtgox'].account, Amount.from_json('800/USD/mtgox').to_text_full());
     });
     it('Parse native 0', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0').to_text_full());
+      assert.strictEqual('0/STR', Amount.from_json('0').to_text_full());
     });
     it('Parse native 0.0', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0.0').to_text_full());
+      assert.strictEqual('0/STR', Amount.from_json('0.0').to_text_full());
     });
     it('Parse native -0', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('-0').to_text_full());
+      assert.strictEqual('0/STR', Amount.from_json('-0').to_text_full());
     });
     it('Parse native -0.0', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('-0.0').to_text_full());
+      assert.strictEqual('0/STR', Amount.from_json('-0.0').to_text_full());
     });
     it('Parse native 1000', function () {
-      assert.strictEqual('0.001/XTR', Amount.from_json('1000').to_text_full());
+      assert.strictEqual('0.001/STR', Amount.from_json('1000').to_text_full());
     });
     it('Parse native 12.3', function () {
-      assert.strictEqual('12.3/XTR', Amount.from_json('12.3').to_text_full());
+      assert.strictEqual('12.3/STR', Amount.from_json('12.3').to_text_full());
     });
     it('Parse native -12.3', function () {
-      assert.strictEqual('-12.3/XTR', Amount.from_json('-12.3').to_text_full());
+      assert.strictEqual('-12.3/STR', Amount.from_json('-12.3').to_text_full());
     });
     it('Parse 123./USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', function () {
       assert.strictEqual('123/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('123./USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').to_text_full());
@@ -136,10 +136,10 @@ describe('Amount', function() {
   });
   describe('Amount operations', function() {
     it('Negate native 123', function () {
-      assert.strictEqual('-0.000123/XTR', Amount.from_json('123').negate().to_text_full());
+      assert.strictEqual('-0.000123/STR', Amount.from_json('123').negate().to_text_full());
     });
     it('Negate native -123', function () {
-      assert.strictEqual('0.000123/XTR', Amount.from_json('-123').negate().to_text_full());
+      assert.strictEqual('0.000123/STR', Amount.from_json('-123').negate().to_text_full());
     });
     it('Negate non-native 123', function () {
       assert.strictEqual('-123/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('123/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').negate().to_text_full());
@@ -150,8 +150,8 @@ describe('Amount', function() {
     it('Clone non-native -123', function () {
       assert.strictEqual('-123/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('-123/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').clone().to_text_full());
     });
-    it('Add XTR to XTR', function () {
-      assert.strictEqual('0.0002/XTR', Amount.from_json('150').add(Amount.from_json('50')).to_text_full());
+    it('Add STR to STR', function () {
+      assert.strictEqual('0.0002/STR', Amount.from_json('150').add(Amount.from_json('50')).to_text_full());
     });
     it('Add USD to USD', function () {
       assert.strictEqual('200.52/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('150.02/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').add(Amount.from_json('50.5/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
@@ -162,47 +162,47 @@ describe('Amount', function() {
     it('Subtract USD from USD', function() {
       assert.strictEqual('99.52/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('150.02/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').subtract(Amount.from_json('50.5/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply 0 XTR with 0 XTR', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0').multiply(Amount.from_json('0')).to_text_full());
+    it('Multiply 0 STR with 0 STR', function () {
+      assert.strictEqual('0/STR', Amount.from_json('0').multiply(Amount.from_json('0')).to_text_full());
     });
-    it('Multiply 0 USD with 0 XTR', function () {
+    it('Multiply 0 USD with 0 STR', function () {
       assert.strictEqual('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('0')).to_text_full());
     });
-    it('Multiply 0 XTR with 0 USD', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0').multiply(Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply 0 STR with 0 USD', function () {
+      assert.strictEqual('0/STR', Amount.from_json('0').multiply(Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply 1 XTR with 0 XTR', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('1').multiply(Amount.from_json('0')).to_text_full());
+    it('Multiply 1 STR with 0 STR', function () {
+      assert.strictEqual('0/STR', Amount.from_json('1').multiply(Amount.from_json('0')).to_text_full());
     });
-    it('Multiply 1 USD with 0 XTR', function () {
+    it('Multiply 1 USD with 0 STR', function () {
       assert.strictEqual('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('1/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('0')).to_text_full());
     });
-    it('Multiply 1 XTR with 0 USD', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('1').multiply(Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply 1 STR with 0 USD', function () {
+      assert.strictEqual('0/STR', Amount.from_json('1').multiply(Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply 0 XTR with 1 XTR', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0').multiply(Amount.from_json('1')).to_text_full());
+    it('Multiply 0 STR with 1 STR', function () {
+      assert.strictEqual('0/STR', Amount.from_json('0').multiply(Amount.from_json('1')).to_text_full());
     });
-    it('Multiply 0 USD with 1 XTR', function () {
+    it('Multiply 0 USD with 1 STR', function () {
       assert.strictEqual('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('0/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('1')).to_text_full());
     });
-    it('Multiply 0 XTR with 1 USD', function () {
-      assert.strictEqual('0/XTR', Amount.from_json('0').multiply(Amount.from_json('1/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply 0 STR with 1 USD', function () {
+      assert.strictEqual('0/STR', Amount.from_json('0').multiply(Amount.from_json('1/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply XTR with USD', function () {
-      assert.equal('0.002/XTR', Amount.from_json('200').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply STR with USD', function () {
+      assert.equal('0.002/STR', Amount.from_json('200').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply XTR with USD', function () {
-      assert.strictEqual('0.2/XTR', Amount.from_json('20000').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply STR with USD', function () {
+      assert.strictEqual('0.2/STR', Amount.from_json('20000').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply XTR with USD', function () {
-      assert.strictEqual('20/XTR', Amount.from_json('2000000').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply STR with USD', function () {
+      assert.strictEqual('20/STR', Amount.from_json('2000000').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply XTR with USD, neg', function () {
-      assert.strictEqual('-0.002/XTR', Amount.from_json('200').multiply(Amount.from_json('-10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply STR with USD, neg', function () {
+      assert.strictEqual('-0.002/STR', Amount.from_json('200').multiply(Amount.from_json('-10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply XTR with USD, neg, frac', function () {
-      assert.strictEqual('-0.222/XTR', Amount.from_json('-6000').multiply(Amount.from_json('37/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Multiply STR with USD, neg, frac', function () {
+      assert.strictEqual('-0.222/STR', Amount.from_json('-6000').multiply(Amount.from_json('37/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
     it('Multiply USD with USD', function () {
       assert.strictEqual('20000/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('2000/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
@@ -219,32 +219,32 @@ describe('Amount', function() {
     it('Multiply EUR with USD, neg, <1', function () {
       assert.strictEqual('-100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('0.1/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('-1000/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Multiply EUR with XTR, factor < 1', function () {
+    it('Multiply EUR with STR, factor < 1', function () {
       assert.strictEqual('100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('0.05/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('2000')).to_text_full());
     });
-    it('Multiply EUR with XTR, neg', function () {
+    it('Multiply EUR with STR, neg', function () {
       assert.strictEqual('-500/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('-100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('5')).to_text_full());
     });
-    it('Multiply EUR with XTR, neg, <1', function () {
+    it('Multiply EUR with STR, neg, <1', function () {
       assert.strictEqual('-100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('-0.05/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').multiply(Amount.from_json('2000')).to_text_full());
     });
-    it('Multiply XTR with XTR', function () {
-      assert.strictEqual('0.0001/XTR', Amount.from_json('10').multiply(Amount.from_json('10')).to_text_full());
+    it('Multiply STR with STR', function () {
+      assert.strictEqual('0.0001/STR', Amount.from_json('10').multiply(Amount.from_json('10')).to_text_full());
     });
-    it('Divide XTR by USD', function () {
-      assert.strictEqual('0.00002/XTR', Amount.from_json('200').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Divide STR by USD', function () {
+      assert.strictEqual('0.00002/STR', Amount.from_json('200').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Divide XTR by USD', function () {
-      assert.strictEqual('0.002/XTR', Amount.from_json('20000').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Divide STR by USD', function () {
+      assert.strictEqual('0.002/STR', Amount.from_json('20000').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Divide XTR by USD', function () {
-      assert.strictEqual('0.2/XTR', Amount.from_json('2000000').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Divide STR by USD', function () {
+      assert.strictEqual('0.2/STR', Amount.from_json('2000000').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Divide XTR by USD, neg', function () {
-      assert.strictEqual('-0.00002/XTR', Amount.from_json('200').divide(Amount.from_json('-10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Divide STR by USD, neg', function () {
+      assert.strictEqual('-0.00002/STR', Amount.from_json('200').divide(Amount.from_json('-10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Divide XTR by USD, neg, frac', function () {
-      assert.strictEqual('-0.000162/XTR', Amount.from_json('-6000').divide(Amount.from_json('37/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
+    it('Divide STR by USD, neg, frac', function () {
+      assert.strictEqual('-0.000162/STR', Amount.from_json('-6000').divide(Amount.from_json('37/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
     it('Divide USD by USD', function () {
       assert.strictEqual('200/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('2000/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').divide(Amount.from_json('10/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
@@ -264,13 +264,13 @@ describe('Amount', function() {
     it('Divide EUR by USD, neg, <1', function () {
       assert.strictEqual('-0.1/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').divide(Amount.from_json('-1000/USD/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh')).to_text_full());
     });
-    it('Divide EUR by XTR, result < 1', function () {
+    it('Divide EUR by STR, result < 1', function () {
       assert.strictEqual('0.05/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').divide(Amount.from_json('2000')).to_text_full());
     });
-    it('Divide EUR by XTR, neg', function () {
+    it('Divide EUR by STR, neg', function () {
       assert.strictEqual('-20/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('-100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').divide(Amount.from_json('5')).to_text_full());
     });
-    it('Divide EUR by XTR, neg, <1', function () {
+    it('Divide EUR by STR, neg, <1', function () {
       assert.strictEqual('-0.05/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh', Amount.from_json('-100/EUR/gHb9CJAWyB4gj91VRWn96DkukG4bwdtyTh').divide(Amount.from_json('2000')).to_text_full());
     });
     it('Divide by zero should throw', function() {
@@ -318,13 +318,13 @@ describe('Amount', function() {
       assert(a.equals(b));
       assert(!a.not_equals_why(b));
     });
-    it('0 XTR == 0 XTR', function () {
+    it('0 STR == 0 STR', function () {
       var a = Amount.from_json('0');
       var b = Amount.from_json('0.0');
       assert(a.equals(b));
       assert(!a.not_equals_why(b));
     });
-    it('0 XTR == -0 XTR', function () {
+    it('0 STR == -0 STR', function () {
       var a = Amount.from_json('0');
       var b = Amount.from_json('-0');
       assert(a.equals(b));
@@ -342,13 +342,13 @@ describe('Amount', function() {
       assert(a.equals(b));
       assert(!a.not_equals_why(b));
     });
-    it('10 XTR == 10 XTR', function () {
+    it('10 STR == 10 STR', function () {
       var a = Amount.from_json('10');
       var b = Amount.from_json('10');
       assert(a.equals(b));
       assert(!a.not_equals_why(b));
     });
-    it('1.1 XTR == 1.1 XTR', function () {
+    it('1.1 STR == 1.1 STR', function () {
       var a = Amount.from_json('1.1');
       var b = Amount.from_json('11.0').ratio_human(10);
       assert(a.equals(b));
@@ -371,65 +371,65 @@ describe('Amount', function() {
       var a = Amount.from_json('10/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('100/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR value differs.');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR value differs.');
     });
-    it('10 XTR != 100 XTR', function () {
+    it('10 STR != 100 STR', function () {
       var a = Amount.from_json('10');
       var b = Amount.from_json('100');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'XTR value differs.');
+      assert.strictEqual(a.not_equals_why(b), 'STR value differs.');
     });
     // Mantissa mismatch
     it('1 USD != 2 USD', function () {
       var a = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('2/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR value differs.');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR value differs.');
     });
-    it('1 XTR != 2 XTR', function () {
+    it('1 STR != 2 STR', function () {
       var a = Amount.from_json('1');
       var b = Amount.from_json('2');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'XTR value differs.');
+      assert.strictEqual(a.not_equals_why(b), 'STR value differs.');
     });
     it('0.1 USD != 0.2 USD', function () {
       var a = Amount.from_json('0.1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('0.2/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR value differs.');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR value differs.');
     });
     // Sign mismatch
     it('1 USD != -1 USD', function () {
       var a = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('-1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR sign differs.');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR sign differs.');
     });
-    it('1 XTR != -1 XTR', function () {
+    it('1 STR != -1 STR', function () {
       var a = Amount.from_json('1');
       var b = Amount.from_json('-1');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'XTR sign differs.');
+      assert.strictEqual(a.not_equals_why(b), 'STR sign differs.');
     });
     it('1 USD != 1 USD (issuer mismatch)', function () {
       var a = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('1/USD/gH5aWQJ4R7v4Mpyf4kDBUvDFT5cbpFq3XP');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR issuer differs: gH5aWQJ4R7v4Mpyf4kDBUvDFT5cbpFq3XP/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR issuer differs: gH5aWQJ4R7v4Mpyf4kDBUvDFT5cbpFq3XP/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
     });
     it('1 USD != 1 EUR', function () {
       var a = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('1/EUR/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));
-      assert.strictEqual(a.not_equals_why(b), 'Non-XTR currency differs.');
+      assert.strictEqual(a.not_equals_why(b), 'Non-STR currency differs.');
     });
-    it('1 USD != 1 XTR', function () {
+    it('1 USD != 1 STR', function () {
       var a = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       var b = Amount.from_json('1');
       assert(!a.equals(b));
       assert.strictEqual(a.not_equals_why(b), 'Native mismatch.');
     });
-    it('1 XTR != 1 USD', function () {
+    it('1 STR != 1 USD', function () {
       var a = Amount.from_json('1');
       var b = Amount.from_json('1/USD/gNDKeo9RgCiRdfsMG8AdoZvNZxHASGzbZL');
       assert(!a.equals(b));

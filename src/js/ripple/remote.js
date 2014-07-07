@@ -44,7 +44,7 @@ var log          = require('./log').internal.sub('remote');
  *      connection_offset  : Connect to remote servers on supplied interval (in seconds)
  *      trusted            : truthy, if remote is trusted
  *      max_fee            : Maximum acceptable transaction fee
- *      fee_cushion        : Extra fee multiplier to account for async fee changes.
+ *      fee_cushion        : ESTRa fee multiplier to account for async fee changes.
  *      servers            : Array of server objects with the following form
  *      canonical_signing  : Signatures should be canonicalized and the "canonical" flag set
  *
@@ -1439,7 +1439,7 @@ Remote.prototype.requestBookOffers = function(gets, pays, taker, callback) {
     currency: Currency.json_rewrite(gets.currency)
   };
 
-  if (request.message.taker_gets.currency !== 'XTR') {
+  if (request.message.taker_gets.currency !== 'STR') {
     request.message.taker_gets.issuer = UInt160.json_rewrite(gets.issuer);
   }
 
@@ -1447,7 +1447,7 @@ Remote.prototype.requestBookOffers = function(gets, pays, taker, callback) {
     currency: Currency.json_rewrite(pays.currency)
   };
 
-  if (request.message.taker_pays.currency !== 'XTR') {
+  if (request.message.taker_pays.currency !== 'STR') {
     request.message.taker_pays.issuer = UInt160.json_rewrite(pays.issuer);
   }
 
@@ -1757,7 +1757,7 @@ Remote.prototype.createPathFind = function(src_account, dst_account, dst_amount,
 };
 
 Remote.prepareTrade = function(currency, issuer) {
-  return currency + (currency === 'XTR' ? '' : ('/' + issuer));
+  return currency + (currency === 'STR' ? '' : ('/' + issuer));
 };
 
 /**
