@@ -1,37 +1,27 @@
 var sjcl    = require('./utils').sjcl;
+var nacl = require('js-nacl').instantiate();
 
 var UInt160 = require('./uint160').UInt160;
 var UInt256 = require('./uint256').UInt256;
 var Base    = require('./base').Base;
 
-function KeyPair() {
-  this._curve  = sjcl.ecc.curves.c256;
-  this._secret = null;
-  this._pubkey = null;
-};
-
-KeyPair.from_bn_secret = function(j) {
-  return (j instanceof this) ? j.clone() : (new this()).parse_bn_secret(j);
-};
-
-KeyPair.prototype.parse_bn_secret = function(j) {
-  this._secret = new sjcl.ecc.ecdsa.secretKey(sjcl.ecc.curves.c256, j);
-  return this;
-};
+/**
+ * Creates an ED25519 key pair for signing.
+ *
+ * @param {object} naclSigningKeys
+ * @constructor
+ */
+function KeyPair(naclSigningKeys) {
+  this._secret = naclSigningKeys.signSk;
+  this._pubkey = naclSigningKeys.signPk;
+}
 
 /**
- * Returns public key as sjcl public key.
+ * Returns public key as a byte array.
  *
  * @private
  */
 KeyPair.prototype._pub = function() {
-  var curve = this._curve;
-
-  if (!this._pubkey && this._secret) {
-    var exponent = this._secret._exponent;
-    this._pubkey = new sjcl.ecc.ecdsa.publicKey(curve, curve.G.mult(exponent));
-  }
-
   return this._pubkey;
 };
 
@@ -47,18 +37,12 @@ KeyPair.prototype._pub_bits = function() {
     return null;
   }
 
-  var point = pub._point, y_even = point.y.mod(2).equals(0);
-
-  return sjcl.bitArray.concat(
-    [sjcl.bitArray.partial(8, y_even ? 0x02 : 0x03)],
-    point.x.toBits(this._curve.r.bitLength())
-  );
+  return sjcl.codec.bytes.toBits(pub);
 };
 
 /**
  * Returns public key as hex.
  *
- * Key will be returned as a compressed pubkey - 33 bytes converted to hex.
  */
 KeyPair.prototype.to_hex_pub = function() {
   var bits = this._pub_bits();
@@ -90,9 +74,9 @@ KeyPair.prototype.get_address = function() {
 
 KeyPair.prototype.sign = function(hash) {
   hash = UInt256.from_json(hash);
-  var sig = this._secret.sign(hash.to_bits(), 0);
-  sig = this._secret.canonicalizeSignature(sig);
-  return this._secret.encodeDER(sig);
+  var sig = nacl.crypto_sign(hash.to_bytes(), this._secret);
+
+  return sjcl.codec.bytes.toBits(sig);
 };
 
 exports.KeyPair = KeyPair;
