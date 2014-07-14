@@ -21,7 +21,8 @@
         "lru-cache": "~2.5.0",
         "superagent": "^0.18.0",
         "gulp-uglify": "~0.3.0",
-        "gulp-rename": "~1.2.0"
+        "gulp-rename": "~1.2.0",
+        "js-nacl": "~0.6.0"
     },
     "devDependencies": {
         "mocha": "~1.14.0",

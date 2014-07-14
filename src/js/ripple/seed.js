@@ -13,14 +13,14 @@ var UInt    = require('./uint').UInt;
 var UInt256 = require('./uint256').UInt256;
 var UInt160 = require('./uint160').UInt160;
 var KeyPair = require('./keypair').KeyPair;
+var nacl = require('js-nacl').instantiate();
 
 var Seed = extend(function () {
   // Internal form: NaN or BigInteger
-  this._curve = sjcl.ecc.curves.c256;
   this._value = NaN;
 }, UInt);
 
-Seed.width = 16;
+Seed.width = 32;
 Seed.prototype = extend({}, UInt.prototype);
 Seed.prototype.constructor = Seed;
 
@@ -32,7 +32,7 @@ Seed.prototype.parse_json = function (j) {
       this._value = NaN;
     // XXX Should actually always try and continue if it failed.
     } else if (j[0] === 's') {
-      this._value = Base.decode_check(Base.VER_FAMILY_SEED, j);
+      this._value = Base.decode_check(Base.VER_SEED, j);
     } else if (j.length === 32) {
       this._value = this.parse_hex(j);
     // XXX Should also try 1751
@@ -52,7 +52,7 @@ Seed.prototype.parse_passphrase = function (j) {
   }
 
   var hash = sjcl.hash.sha512.hash(sjcl.codec.utf8String.toBits(j));
-  var bits = sjcl.bitArray.bitSlice(hash, 0, 128);
+  var bits = sjcl.bitArray.bitSlice(hash, 0, 256);
 
   this.parse_bits(bits);
 
@@ -64,7 +64,7 @@ Seed.prototype.to_json = function () {
     return NaN;
   }
 
-  var output = Base.encode_check(Base.VER_FAMILY_SEED, this.to_bytes());
+  var output = Base.encode_check(Base.VER_SEED, this.to_bytes());
 
   return output;
 };
@@ -85,65 +85,14 @@ function SHA256_RIPEMD160(bits) {
 };
 
 /**
-* @param account
-*        {undefined}                 take first, default, KeyPair
-*
-*        {Number}                    specifies the account number of the KeyPair
-*                                    desired.
-*
-*        {Uint160} (from_json able), specifies the address matching the KeyPair
-*                                    that is desired.
-*/
-Seed.prototype.get_key = function (account) {
-  var account_number = 0, address;
-
+ * Generates an ED25519 signing key pair.
+ */
+Seed.prototype.get_key = function () {
   if (!this.is_valid()) {
     throw new Error('Cannot generate keys from invalid seed!');
   }
-  if (account) {
-    if (typeof account === 'number') {
-      account_number = account;
-    } else {
-      address = UInt160.from_json(account);
-    }
-  }
 
-  var private_gen, public_gen;
-  var curve = this._curve;
-  var i = 0;
-
-  do {
-    private_gen = sjcl.bn.fromBits(firstHalfOfSHA512(append_int(this.to_bytes(), i)));
-    i++;
-  } while (!curve.r.greaterEquals(private_gen));
-
-  public_gen = curve.G.mult(private_gen);
-
-  var sec;
-  var key_pair;
-  var max_loops = 1000; // TODO
-
-  do {
-    i = 0;
-
-    do {
-      sec = sjcl.bn.fromBits(firstHalfOfSHA512(append_int(append_int(public_gen.toBytesCompressed(), account_number), i)));
-      i++;
-    } while (!curve.r.greaterEquals(sec));
-
-    account_number++;
-    sec = sec.add(private_gen).mod(curve.r);
-    key_pair = KeyPair.from_bn_secret(sec);
-
-    if (--max_loops <= 0) {
-      // We are almost certainly looking for an account that would take same
-      // value of $too_long {forever, ...}
-      throw new Error('Too many loops looking for KeyPair yielding '+
-                      address.to_json() +' from ' + this.to_json());
-    };
-  } while (address && !key_pair.get_address().equals(address));
-
-   return key_pair;
+  return new KeyPair(nacl.crypto_sign_keypair_from_seed(this.to_bytes()));
 };
 
 exports.Seed = Seed;

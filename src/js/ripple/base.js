@@ -7,20 +7,19 @@ var BigInteger = utils.jsbn.BigInteger;
 var Base = {};
 
 var alphabets = Base.alphabets = {
-  ripple  :  "gpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz",
+  ripple  :  "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz",
   tipple  :  "GPShNAF39wBUDnERHJKLM4pQrsT7VWXYZ2bcdeCg65jkm8ofqi1tuvaxyz",
   bitcoin :  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 };
 
 extend(Base, {
   VER_NONE              : 1,
-  VER_NODE_PUBLIC       : 28,
-  VER_NODE_PRIVATE      : 32,
+  VER_NODE_PUBLIC       : 122,
+  VER_NODE_PRIVATE      : 102,
   VER_ACCOUNT_ID        : 0,
-  VER_ACCOUNT_PUBLIC    : 35,
-  VER_ACCOUNT_PRIVATE   : 34,
-  VER_FAMILY_GENERATOR  : 41,
-  VER_FAMILY_SEED       : 33
+  VER_ACCOUNT_PUBLIC    : 67,
+  VER_ACCOUNT_PRIVATE   : 101,
+  VER_SEED       : 33
 });
 
 function sha256(bytes) {
