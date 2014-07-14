@@ -59,6 +59,12 @@ Seed.prototype.parse_passphrase = function (j) {
   return this;
 };
 
+Seed.prototype.random = function () {
+  this.parse_bits(sjcl.random.randomWords(8));
+
+  return this;
+};
+
 Seed.prototype.to_json = function () {
   if (!(this._value instanceof BigInteger)) {
     return NaN;
