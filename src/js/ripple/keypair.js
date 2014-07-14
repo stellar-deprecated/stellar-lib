@@ -74,7 +74,7 @@ KeyPair.prototype.get_address = function() {
 
 KeyPair.prototype.sign = function(hash) {
   hash = UInt256.from_json(hash);
-  var sig = nacl.crypto_sign(hash.to_bytes(), this._secret);
+  var sig = nacl.crypto_sign_detached(hash.to_bytes(), this._secret);
 
   return sjcl.codec.bytes.toBits(sig);
 };
