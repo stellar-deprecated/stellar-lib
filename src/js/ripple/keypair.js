@@ -1,5 +1,5 @@
-var sjcl    = require('./utils').sjcl;
-var nacl = require('js-nacl').instantiate();
+var sjcl = require('./utils').sjcl;
+var tnacl = require('tweetnacl');
 
 var UInt160 = require('./uint160').UInt160;
 var UInt256 = require('./uint256').UInt256;
@@ -11,9 +11,17 @@ var Base    = require('./base').Base;
  * @param {object} naclSigningKeys
  * @constructor
  */
-function KeyPair(naclSigningKeys) {
-  this._secret = naclSigningKeys.signSk;
-  this._pubkey = naclSigningKeys.signPk;
+function KeyPair() {
+
+}
+
+KeyPair.from_seed_bytes = function(bytes) {
+  var keys = tnacl.sign.keyPair.fromSeed(new Uint8Array(bytes));
+
+  var result = new KeyPair();
+  result._secret = keys.secretKey;
+  result._pubkey = keys.publicKey;
+  return result;
 }
 
 /**
@@ -74,7 +82,7 @@ KeyPair.prototype.get_address = function() {
 
 KeyPair.prototype.sign = function(hash) {
   hash = UInt256.from_json(hash);
-  var sig = nacl.crypto_sign_detached(hash.to_bytes(), this._secret);
+  var sig = tnacl.sign(new Uint8Array(hash.to_bytes()), this._secret);
 
   return sjcl.codec.bytes.toBits(sig);
 };

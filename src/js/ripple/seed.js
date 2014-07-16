@@ -13,7 +13,6 @@ var UInt    = require('./uint').UInt;
 var UInt256 = require('./uint256').UInt256;
 var UInt160 = require('./uint160').UInt160;
 var KeyPair = require('./keypair').KeyPair;
-var nacl = require('js-nacl').instantiate();
 
 var Seed = extend(function () {
   // Internal form: NaN or BigInteger
@@ -98,7 +97,15 @@ Seed.prototype.get_key = function () {
     throw new Error('Cannot generate keys from invalid seed!');
   }
 
-  return new KeyPair(nacl.crypto_sign_keypair_from_seed(this.to_bytes()));
+  return KeyPair.from_seed_bytes(this.to_bytes());
+};
+
+Seed.prototype.get_key_tnacl = function () {
+  if (!this.is_valid()) {
+    throw new Error('Cannot generate keys from invalid seed!');
+  }
+
+  return KeyPair.from_seed_bytes_tnacl(this.to_bytes());
 };
 
 exports.Seed = Seed;
