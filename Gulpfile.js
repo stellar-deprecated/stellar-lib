@@ -59,9 +59,9 @@ gulp.task('build', [ 'concat-sjcl' ], function(callback) {
     cache: true,
     entry: './src/js/ripple/index.js',
     output: {
-      library: 'ripple',
+      library: 'stellar',
       path: './build/',
-      filename: [ 'ripple-', '.js' ].join(pkg.version)
+      filename: [ 'stellar-', '.js' ].join(pkg.version)
     },
   }, callback);
 });
@@ -69,7 +69,7 @@ gulp.task('build', [ 'concat-sjcl' ], function(callback) {
 gulp.task('build-min', [ 'build' ], function(callback) {
   return gulp.src([ './build/ripple-', '.js' ].join(pkg.version))
   .pipe(uglify())
-  .pipe(rename([ 'ripple-', '-min.js' ].join(pkg.version)))
+  .pipe(rename([ 'stellar-', '-min.js' ].join(pkg.version)))
   .pipe(gulp.dest('./build/'));
 });
 
@@ -78,9 +78,9 @@ gulp.task('build-debug', [ 'concat-sjcl' ], function(callback) {
     cache: true,
     entry: './src/js/ripple/index.js',
     output: {
-      library: 'ripple',
+      library: 'stellar',
       path: './build/',
-      filename: [ 'ripple-', '-debug.js' ].join(pkg.version)
+      filename: [ 'stellar-', '-debug.js' ].join(pkg.version)
     },
     debug: true,
     devtool: 'eval'
