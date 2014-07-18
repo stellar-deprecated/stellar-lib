@@ -1,6 +1,6 @@
 {
   "name": "stellar-lib",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Stellar JavaScript client library",
   "files": [
     "src/js/*",
@@ -22,7 +22,7 @@
         "superagent": "^0.18.0",
         "gulp-uglify": "~0.3.0",
         "gulp-rename": "~1.2.0",
-        "js-nacl": "~0.6.0"
+        "tweetnacl": "git+ssh://git@github.com:stellar/tweetnacl-js.git"
     },
     "devDependencies": {
         "mocha": "~1.14.0",
