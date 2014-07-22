@@ -730,14 +730,14 @@ describe('Server', function() {
     });
   });
 
-  it('Handle message - path_find', function(done) {
+  it('Handle message - find_path', function(done) {
     var server = new Server(new Remote(), 'ws://localhost:5748');
 
     server._handlePathFind = function() {
       done();
     };
 
-    server.emit('message', { type: 'path_find' });
+    server.emit('message', { type: 'find_path' });
   });
 
   it('Handle message - invalid message', function(done) {
@@ -747,7 +747,7 @@ describe('Server', function() {
       done();
     });
 
-    server.emit('message', { butt: 'path_find' });
+    server.emit('message', { butt: 'find_path' });
   });
 
   it('Send message', function(done) {

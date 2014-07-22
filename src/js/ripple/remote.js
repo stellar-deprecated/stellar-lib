@@ -586,7 +586,7 @@ Remote.prototype._handleMessage = function(message, server) {
     case 'transaction':
       this._handleTransaction(message);
       break;
-    case 'path_find':
+    case 'find_path':
       this._handlePathFind(message);
       break;
     default:
@@ -692,7 +692,7 @@ Remote.prototype._handleTransaction = function(message) {
 };
 
 /**
- * Handle server path_find event
+ * Handle server find_path event
  *
  * @param {Object} message
  */
@@ -1979,7 +1979,7 @@ Remote.prepareCurrencies = function(currency) {
 };
 
 /**
- * Request ripple_path_find
+ * Request static_path_find
  *
  * @param {Object} options
  * @param [Function] callback
@@ -1996,7 +1996,7 @@ Remote.prototype.requestRipplePathFind = function(src_account, dst_account, dst_
     src_account    = options.src_account;
   }
 
-  var request = new Request(this, 'ripple_path_find');
+  var request = new Request(this, 'static_path_find');
 
   request.message.source_account      = UInt160.json_rewrite(src_account);
   request.message.destination_account = UInt160.json_rewrite(dst_account);
@@ -2012,7 +2012,7 @@ Remote.prototype.requestRipplePathFind = function(src_account, dst_account, dst_
 };
 
 /**
- * Request path_find/create
+ * Request find_path/create
  *
  * @param {Object} options
  * @param [Function] callback
@@ -2029,7 +2029,7 @@ Remote.prototype.requestPathFindCreate = function(src_account, dst_account, dst_
     src_account    = options.src_account;
   }
 
-  var request = new Request(this, 'path_find');
+  var request = new Request(this, 'find_path');
 
   request.message.subcommand          = 'create';
   request.message.source_account      = UInt160.json_rewrite(src_account);
@@ -2046,14 +2046,14 @@ Remote.prototype.requestPathFindCreate = function(src_account, dst_account, dst_
 };
 
 /**
- * Request path_find/close
+ * Request find_path/close
  *
  * @param [Function] callback
  * @return {Request}
  */
 
 Remote.prototype.requestPathFindClose = function(callback) {
-  var request = new Request(this, 'path_find');
+  var request = new Request(this, 'find_path');
 
   request.message.subcommand = 'close';
   request.callback(callback);

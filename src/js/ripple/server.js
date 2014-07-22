@@ -480,7 +480,7 @@ Server.prototype._handleMessage = function(message) {
     case 'response':
       this._handleResponse(message);
       break;
-    case 'path_find':
+    case 'find_path':
       this._handlePathFind(message);
       break;
   }
@@ -560,7 +560,7 @@ Server.prototype._handleResponse = function(message) {
 
 Server.prototype._handlePathFind = function(message) {
   if (this._remote.trace) {
-    log.info('path_find:', this._opts.url, message);
+    log.info('find_path:', this._opts.url, message);
   }
 };
 
