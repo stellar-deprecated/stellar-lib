@@ -1,10 +1,10 @@
-#`ripple-lib` Guides
+#`stellar-lib` Guides
 
-This file provides step-by-step walkthroughs for some of the most common usages of `ripple-lib`.
+This file provides step-by-step walkthroughs for some of the most common usages of `stellar-lib`.
 
 ###Guides in this document:
 
-1. [Connecting to the Ripple network with `Remote`](GUIDES.md#1-connecting-to-the-ripple-network-with-remote)
+1. [Connecting to the Ripple network with `Remote`](GUIDES.md#1-connecting-to-the-stellar-network-with-remote)
 2. [Using `Remote` functions and `Request` objects](GUIDES.md#2-using-remote-functions-and-request-objects)
 3. [Submitting a payment to the network](GUIDES.md#3-submitting-a-payment-to-the-network)
    * [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees)
@@ -14,19 +14,19 @@ This file provides step-by-step walkthroughs for some of the most common usages 
 
 ###Also see:
 
-1. [The `ripple-lib` README](../README.md)
-2. [The `ripple-lib` API Reference](REFERENCE.md)
+1. [The `stellar-lib` README](../README.md)
+2. [The `stellar-lib` API Reference](REFERENCE.md)
 
 ##1. Connecting to the Ripple network with `Remote`
 
-1. [Get `ripple-lib`](README.md#getting-ripple-lib)
-2. Load the `ripple-lib` module into a Node.js file or webpage:
+1. [Get `stellar-lib`](README.md#getting-stellar-lib)
+2. Load the `stellar-lib` module into a Node.js file or webpage:
   ```js
-  /* Loading ripple-lib with Node.js */
-  var Remote = require('ripple-lib').Remote;
+  /* Loading stellar-lib with Node.js */
+  var Remote = require('stellar-lib').Remote;
 
-  /* Loading ripple-lib in a webpage */
-  // var Remote = ripple.Remote;
+  /* Loading stellar-lib in a webpage */
+  // var Remote = stellar.Remote;
   ```
 3. Create a new `Remote` and connect to the network:
   ```js
@@ -78,21 +78,21 @@ __NOTE:__ See the API Reference for available [`Remote` functions](REFERENCE.md#
 
 ##3. Submitting a payment to the network
 
-Submitting a payment transaction to the Ripple network involves connecting to a `Remote`, creating a transaction, signing it with the user's secret, and submitting it to the `rippled` server. Note that the `Amount` module is used to convert human-readable amounts like '1XRP' or '10.50USD' to the type of Amount object used by the Ripple network.
+Submitting a payment transaction to the Stellar network involves connecting to a `Remote`, creating a transaction, signing it with the user's secret, and submitting it to the `stellard` server. Note that the `Amount` module is used to convert human-readable amounts like '1XRP' or '10.50USD' to the type of Amount object used by the Stellar network.
 
 ```js
-/* Loading ripple-lib Remote and Amount modules in Node.js */ 
-var Remote = require('ripple-lib').Remote;
-var Amount = require('ripple-lib').Amount;
+/* Loading stellar-lib Remote and Amount modules in Node.js */ 
+var Remote = require('stellar-lib').Remote;
+var Amount = require('stellar-lib').Amount;
 
-/* Loading ripple-lib Remote and Amount modules in a webpage */
-// var Remote = ripple.Remote;
-// var Amount = ripple.Amount;
+/* Loading stellar-lib Remote and Amount modules in a webpage */
+// var Remote = stellar.Remote;
+// var Amount = stellar.Amount;
 
 var MY_ADDRESS = 'rrrMyAddress';
 var MY_SECRET  = 'secret';
 var RECIPIENT  = 'rrrRecipient';
-var AMOUNT     = Amount.from_human('1XRP');
+var AMOUNT     = Amount.from_human('1STR');
 
 var remote = new Remote({ /* Remote options */ });
 
@@ -115,32 +115,32 @@ remote.connect(function() {
 
 ###A note on transaction fees
 
-A full description of network transaction fees can be found on the [Ripple Wiki](https://ripple.com/wiki/Transaction_Fee).
+A full description of network transaction fees can be found on the [Stellar Wiki](https://wiki.gostellar.org/Transaction_Fee).
 
-In short, transaction fees are very small amounts (on the order of ~10) of [XRP drops](https://ripple.com/wiki/Ripple_credits#Notes_on_drops) spent and destroyed with every transaction. They are largely used to account for network load and prevent spam. With `ripple-lib`, transaction fees are calculated locally by default and the fee you are willing to pay is submitted along with your transaction.
+In short, transaction fees are very small amounts (on the order of ~10) of [Stroop](https://wiki.gostellar.org/Stroop) spent with every transaction. They are largely used to account for network load and prevent spam. With `stellar-lib`, transaction fees are calculated locally by default and the fee you are willing to pay is submitted along with your transaction.
 
-Since the fee required for a transaction may change between the time when the original fee was calculated and the time when the transaction is submitted, it is wise to use the [`fee_cushion`](REFERENCE.md#1-remote-options) to ensure that the transaction will go through. For example, suppose the original fee calculated for a transaction was 10 XRP drops but at the instant the transaction is submitted the server is experiencing a higher load and it has raised its minimum fee to 12 XRP drops. Without a `fee_cusion`, this transaction would not be processed by the server, but with a `fee_cusion` of, say, 1.5 it would be processed and you would just pay the 2 extra XRP drops.
+Since the fee required for a transaction may change between the time when the original fee was calculated and the time when the transaction is submitted, it is wise to use the [`fee_cushion`](REFERENCE.md#1-remote-options) to ensure that the transaction will go through. For example, suppose the original fee calculated for a transaction was 10 stroop but at the instant the transaction is submitted the server is experiencing a higher load and it has raised its minimum fee to 12 stroop. Without a `fee_cusion`, this transaction would not be processed by the server, but with a `fee_cusion` of, say, 1.5 it would be processed and you would just pay the 2 extra stroop.
 
 The [`max_fee`](REFERENCE.md#1-remote-options) option can be used to avoid submitting a transaction to a server that is charging unreasonably high fees.
 
 
 ##4. Submitting a trade offer to the network
 
-Submitting a trade offer to the network is similar to submitting a payment transaction. Here is an example for a trade that expires in 24 hours where you are offering to sell 1 USD in exchange for 100 XRP:
+Submitting a trade offer to the network is similar to submitting a payment transaction. Here is an example for a trade that expires in 24 hours where you are offering to sell 1 USD in exchange for 100 STR:
 
 ```js
-/* Loading ripple-lib Remote and Amount modules in Node.js */ 
-var Remote = require('ripple-lib').Remote;
-var Amount = require('ripple-lib').Amount;
+/* Loading stellar-lib Remote and Amount modules in Node.js */ 
+var Remote = require('stellar-lib').Remote;
+var Amount = require('stellar-lib').Amount;
 
-/* Loading ripple-lib Remote and Amount modules in a webpage */
-// var Remote = ripple.Remote;
-// var Amount = ripple.Amount;
+/* Loading stellar-lib Remote and Amount modules in a webpage */
+// var Remote = stellar.Remote;
+// var Amount = stellar.Amount;
 
 var MY_ADDRESS = 'rrrMyAddress';
 var MY_SECRET  = 'secret';
 
-var BUY_AMOUNT = Amount.from_human('100XRP');
+var BUY_AMOUNT = Amount.from_human('100STR');
 var SELL_AMOUNT = Amount.from_human('1USD');
 
 // EXPIRATION must be a Date object, leave undefined to submit offer that won't expire
@@ -170,14 +170,14 @@ remote.connect(function() {
 
 ##5. Listening to the network
 
-In some (relatively rare) cases you may want to subscribe to the network event feed and listen for transactions and the ledger closings. [Ripple.com](http://www.ripple.com) uses this feature of `ripple-lib` to display the live feed on the top of each page and the ledger closing visualization on the [Developers page](http://ripple.com/devs).
+In some (relatively rare) cases you may want to subscribe to the network event feed and listen for transactions and the ledger closings.
 
 ```js
- /* Loading ripple-lib with Node.js */
-  var Remote = require('ripple-lib').Remote;
+ /* Loading stellar-lib with Node.js */
+  var Remote = require('stellar-lib').Remote;
 
-  /* Loading ripple-lib in a webpage */
-  // var Remote = ripple.Remote;
+  /* Loading stellar-lib in a webpage */
+  // var Remote = stellar.Remote;
 
   var remote = new Remote({options});
 
@@ -188,14 +188,13 @@ In some (relatively rare) cases you may want to subscribe to the network event f
 
   function transactionListener (transaction_data) {
     // handle transaction_data
-    // see https://ripple.com/wiki/RPC_API#transactions_stream_messages for the format of transaction_data
+    // see https://www.gostellar.org/api/#api-subscribe for the format of transaction_data
   }
 
   function ledgerListener (ledger_data) {
     // handle ledger_data
-    // see https://ripple.com/wiki/RPC_API#ledger_stream_messages for the format of ledger_data
+    // see https://www.gostellar.org/api/#api-subscribe for the format of ledger_data
   }
 ```
-* https://ripple.com/wiki/RPC_API#transactions_stream_messages
-* https://ripple.com/wiki/RPC_API#ledger_stream_messages
+* https://https://www.gostellar.org/api/#api-subscribe
 
