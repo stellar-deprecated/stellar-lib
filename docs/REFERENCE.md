@@ -1,4 +1,4 @@
-#`ripple-lib` API Reference
+#`stellar-lib` API Reference
 
 __(More examples coming soon!)__
 
@@ -18,18 +18,18 @@ __(More examples coming soon!)__
 
 ###Also see:
 
-1. [The `ripple-lib` README](../README.md)
-2. [The `ripple-lib` GUIDES](GUIDES.md)
+1. [The `stellar-lib` README](../README.md)
+2. [The `stellar-lib` GUIDES](GUIDES.md)
 
 
 #1. `Remote` options
 
 ```js
-/* Loading ripple-lib with Node.js */
+/* Loading stellar-lib with Node.js */
 var Remote = require('ripple-lib').Remote;
 
-/* Loading ripple-lib in a webpage */
-// var Remote = ripple.Remote;
+/* Loading stellar-lib in a webpage */
+// var Remote = stellar.Remote;
 
 var remote = new Remote({options});
 ```
@@ -42,7 +42,7 @@ A new `Remote` can be created with the following options:
 + `trusted` truthy, if remote is trusted (boolean)
 + `local_fee` Set whether the transaction fee range will be set locally (boolean, default is true, see [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees))
 + `fee_cushion` Extra fee multiplier to account for async fee changes (number, e.g. 1.5, see [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees))
-+ `max_fee` Maximum acceptable transaction fee (number in [XRP drops](https://ripple.com/wiki/Ripple_credits#Notes_on_drops), see [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees))
++ `max_fee` Maximum acceptable transaction fee (number in [Stroop](https://wiki.gostellar.org/Stroop), see [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees))
 + `servers` Array of server objects of the following form:
 
 ```js
@@ -60,7 +60,7 @@ A new `Remote` can be created with the following options:
 
 ##Server info functions
 
-**[requestServerInfo([callback])](https://ripple.com/wiki/RPC_API#server_info)**
+**[requestServerInfo([callback])](https://www.gostellar.org/api/#api-server_info)**
 
 Returns information about the state of the server. If you are connected to multiple servers and want to select by a particular host, use `request.set_server`. Example:
 
@@ -73,34 +73,17 @@ request.callback(function(err, res) {
 request.request();
 ```
 
-**[requestUnlList([callback])](https://ripple.com/wiki/RPC_API#unl_list)**
-
-**[requestUnlAdd(addr, comment, [callback])](https://ripple.com/wiki/RPC_API#unl_add)**
-
-**[requestUnlDelete(node, [callback])](https://ripple.com/wiki/RPC_API#unl_delete)**
-
-**[requestPeers([callback])](https://ripple.com/wiki/RPC_API#peers)**
-
-
-**[requestConnect(ip, port, [callback])](https://ripple.com/wiki/RPC_API#connect)**
 
 
 
 ##Ledger query functions
 
-**[requestLedger(ledger, [opts], [callback])](https://ripple.com/wiki/RPC_API#ledger)**
 
-**requestLedgerHeader([callback])**
-
-**[requestLedgerCurrent([callback])](https://ripple.com/wiki/RPC_API#ledger_current)**
-
-**[requestLedgerEntry(type, [callback])](https://ripple.com/wiki/RPC_API#ledger_entry)**
-
-**[requestSubscribe(streams, [callback])](https://ripple.com/wiki/RPC_API#subscribe)**
+**[requestSubscribe(streams, [callback])](https://www.gostellar.org/api/#api-subscribe)**
 
 Start receiving selected streams from the server.
 
-**[requestUnsubscribe(streams, [callback])](https://ripple.com/wiki/RPC_API#unsubscribe)**
+**[requestUnsubscribe(streams, [callback])](https://www.gostellar.org/api/#api-unsubscribe)**
 
 Stop receiving selected streams from the server.
 
@@ -109,11 +92,11 @@ Stop receiving selected streams from the server.
 
 ##Transaction query functions
 
-**[requestTransactionEntry(hash, [ledger_hash], [callback])](https://ripple.com/wiki/RPC_API#transaction_entry)**
+**[requestTransactionEntry(hash, [ledger_hash], [callback])](https://www.gostellar.org/api/#api-transaction_entry)**
 
 Searches a particular ledger for a transaction hash. Default ledger is the open ledger.
 
-**[requestTx(hash, [callback])](https://ripple.com/wiki/RPC_API#tx)**
+**[requestTx(hash, [callback])](https://www.gostellar.org/api/#api-tx)**
 
 Searches ledger history for validated transaction hashes.
 
@@ -122,7 +105,7 @@ Searches ledger history for validated transaction hashes.
 
 ##Account query functions
 
-**[requestAccountInfo(account, [callback])](https://ripple.com/wiki/RPC_API#account_info)**
+**[requestAccountInfo(account, [callback])](https://www.gostellar.org/api/#api-account_info)**
 
 Return information about the specified account.
 
@@ -143,13 +126,13 @@ Return information about the specified account.
 }
 ```
 
-**[requestAccountLines(accountID, account_index, current, [callback])](https://ripple.com/wiki/RPC_API#account_lines)**
+**[requestAccountLines(accountID, account_index, current, [callback])](https://www.gostellar.org/api/#api-account_lines)**
 
-**[requestAccountOffers(accountID, account_index, current, [callback])](https://ripple.com/wiki/RPC_API#account_offers)**
+**[requestAccountOffers(accountID, account_index, current, [callback])](https://www.gostellar.org/api/#api-account_offers)**
 
 Return the specified account's outstanding offers.
 
-**[requestAccountTx(opts, [callback])](https://ripple.com/wiki/RPC_API#account_tx)**
+**[requestAccountTx(opts, [callback])](https://www.gostellar.org/api/#api-account_tx)**
 
 Fetch a list of transactions that applied to this account.
 
@@ -167,15 +150,10 @@ Options:
 + `fwd_marker`
 + `rev_marker`
 
-**[requestWalletAccounts(seed, [callback])](https://ripple.com/wiki/RPC_API#wallet_accounts)**
-
-Return a list of accounts for a wallet.
-
-+ requires trusted remote
 
 **requestAccountBalance(account, ledger, [callback])**
 
-Get the balance for an account. Returns an [Amount](https://github.com/ripple/ripple-lib/blob/develop/src/js/ripple/amount.js) object.
+Get the balance for an account. Returns an [Amount](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/amount.js) object.
 
 **requestAccountFlags(account, current, [callback])**
 
@@ -194,18 +172,18 @@ Return a request to get a ripple balance
 
 ##Order book query functions
 
-**[requestBookOffers(gets, pays, taker, [callback])](https://ripple.com/wiki/RPC_API#book_offers)**
+**[requestBookOffers(gets, pays, taker, [callback])](https://www.gostellar.org/api/#api-book_offers)**
 
 Return the offers for an order book as one or more pages.
 
 ```js
 var request = remote.request_book_offers({
   gets: {
-    'currency':'XRP'
+    'currency':'STR'
   },
   pays: {
     'currency':'USD',
-    'issuer': 'rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B'
+    'issuer': 'ganVp9o5emfzpwrG5QVUXqMv8AgLcdvySb'
   }
 });
 
@@ -217,28 +195,28 @@ request.request();
 
 ##Transaction submission functions
 
-**[requestSign(secret, tx_json, [callback])](https://ripple.com/wiki/RPC_API#sign)**
+**[requestSign(secret, tx_json, [callback])](https://www.gostellar.org/api/#api-sign)**
 
 Sign a transaction.
 
 + requires trusted remote
 
-**[requestSubmit([callback])](https://ripple.com/wiki/RPC_API#submit)**
+**[requestSubmit([callback])](https://www.gostellar.org/api/#api-submit)**
 
 Submit a transaction to the network. This command is used internally to submit transactions with a greater degree of reliability. See [Submitting a payment to the network](GUIDES.md#3-submitting-a-payment-to-the-network) for details.
 
 
-**[requestRipplePathFind(src_account, dst_account, dst_amount, src_currencies, [callback])](https://ripple.com/wiki/RPC_API#path_find)**
+**[requestRipplePathFind(src_account, dst_account, dst_amount, src_currencies, [callback])](https://www.gostellar.org/api/#api-find_path)**
 
 
 **transaction([destination], [source], [amount], [callback])**
 
-Returns a [Transaction](https://github.com/ripple/ripple-lib/blob/develop/src/js/ripple/transaction.js) object
+Returns a [Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/transaction.js) object
 
 
 #3. Transaction events
 
-[Transaction](https://github.com/ripple/ripple-lib/blob/develop/src/js/ripple/transaction.js) objects are EventEmitters. They may emit the following events.
+[Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/transaction.js) objects are EventEmitters. They may emit the following events.
 
 + `final` Transaction has erred or succeeded. This event indicates that the transaction has finished processing.
 + `error` Transaction has erred. This event is a final state.
@@ -253,6 +231,4 @@ Returns a [Transaction](https://github.com/ripple/ripple-lib/blob/develop/src/js
 + `lost` Eight ledgers have closed without detecting validated transaction. Consider the transaction lost and err/finalize.
 
 
-#4. Amount objects
 
-Coming Soon
