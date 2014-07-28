@@ -26,7 +26,7 @@ __(More examples coming soon!)__
 
 ```js
 /* Loading stellar-lib with Node.js */
-var Remote = require('ripple-lib').Remote;
+var Remote = require('stellar-lib').Remote;
 
 /* Loading stellar-lib in a webpage */
 // var Remote = stellar.Remote;
