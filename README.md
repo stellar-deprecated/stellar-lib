@@ -1,15 +1,13 @@
 #The Stellar JavaScript Library
 
-[![Build Status](https://travis-ci.org/stellar/stellar-lib.svg?branch=develop)](https://travis-ci.org/stellar/stellar-lib) [![Coverage Status](https://coveralls.io/repos/stellar/stellar-lib/badge.png?branch=develop)](https://coveralls.io/r/stellar/stellar-lib?branch=develop)
+`stellar-lib` connects to the Stellar network via the WebSocket protocol.  It runs in Node.js or in the browser.
 
-[![NPM](https://nodei.co/npm/stellar-lib.png)](https://www.npmjs.org/package/stellar-lib)
 
-`stellar-lib` connects to the Stellar network via the WebSocket protocol and runs in Node.js as well as in the browser.
 
 ###Use stellar-lib for:
 
 + Connecting to a local or remote stellard in JavaScript (Node.js or browser)
-+ Issuing [stellard API](https://stellar.com/wiki/JSON_Messages) requests
++ Issuing [stellard API](https://gostellar.org/api) requests
 + Listening to events on the stellar network (transaction, ledger, etc.)
 + Signing and submitting transactions to the stellar network
 
@@ -24,7 +22,7 @@
 
 1. [The `stellar-lib` Guides (docs/GUIDES.md)](docs/GUIDES.md)
 2. [The `stellar-lib` API Reference (docs/REFERENCE.md)](docs/REFERENCE.md)
-3. https://stellar.com/wiki/stellar_JavaScript_library
+
 
 ###Also see:
 
