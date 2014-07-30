@@ -27,6 +27,7 @@ var sjclSrc = [
   'src/js/sjcl/core/sha512.js',
   'src/js/sjcl/core/sha1.js',
   'src/js/sjcl/core/ccm.js',
+  'src/js/sjcl/core/gcm.js',
   // 'src/js/sjcl/core/cbc.js',
   // 'src/js/sjcl/core/ocb2.js',
   'src/js/sjcl/core/hmac.js',
