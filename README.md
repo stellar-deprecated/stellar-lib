@@ -37,12 +37,12 @@
   $ npm install stellar-lib
 ```
 
-**Build from the source using `grunt`**
+**Build from the source using `gulp`**
 
 ```
   $ git clone https://github.com/stellar/stellar-lib
   $ npm install
-  $ grunt
+  $ gulp
 ```
 
 Then use the minified `build/stellar-*-min.js` in your webpage
