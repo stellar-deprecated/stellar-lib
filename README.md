@@ -41,6 +41,7 @@
 
 ```
   $ git clone https://github.com/stellar/stellar-lib
+  $ cd stellar-lib
   $ npm install
   $ gulp
 ```
@@ -66,8 +67,8 @@ var remote = new Remote({
   fee_cushion:     1.5,
   servers: [
     {
-        host:    's1.stellar.com'
-      , port:    443
+        host:    'live.stellar.org'
+      , port:    9001
       , secure:  true
     }
   ]
