@@ -4,7 +4,7 @@ This file provides step-by-step walkthroughs for some of the most common usages 
 
 ###Guides in this document:
 
-1. [Connecting to the Ripple network with `Remote`](GUIDES.md#1-connecting-to-the-stellar-network-with-remote)
+1. [Connecting to the Stellar network with `Remote`](GUIDES.md#1-connecting-to-the-stellar-network-with-remote)
 2. [Using `Remote` functions and `Request` objects](GUIDES.md#2-using-remote-functions-and-request-objects)
 3. [Submitting a payment to the network](GUIDES.md#3-submitting-a-payment-to-the-network)
    * [A note on transaction fees](GUIDES.md#a-note-on-transaction-fees)
@@ -17,7 +17,7 @@ This file provides step-by-step walkthroughs for some of the most common usages 
 1. [The `stellar-lib` README](../README.md)
 2. [The `stellar-lib` API Reference](REFERENCE.md)
 
-##1. Connecting to the Ripple network with `Remote`
+##1. Connecting to the Stellar network with `Remote`
 
 1. [Get `stellar-lib`](README.md#getting-stellar-lib)
 2. Load the `stellar-lib` module into a Node.js file or webpage:
