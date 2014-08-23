@@ -46,3 +46,5 @@ test/config.js
 
 # Ignore IntelliJ files
 .idea
+
+*.log
