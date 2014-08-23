@@ -15,50 +15,10 @@ var banner = '/*! <%= pkg.name %> - v<%= pkg.version %> - '
 + '* Copyright (c) <%= new Date().getFullYear() %> <%= pkg.author.name %>;'
 + ' Licensed <%= pkg.license %> */'
 
-var sjclSrc = [
-  'src/js/sjcl/core/sjcl.js',
-  'src/js/sjcl/core/aes.js',
-  'src/js/sjcl/core/bitArray.js',
-  'src/js/sjcl/core/codecString.js',
-  'src/js/sjcl/core/codecHex.js',
-  'src/js/sjcl/core/codecBase64.js',
-  'src/js/sjcl/core/codecBytes.js',
-  'src/js/sjcl/core/sha256.js',
-  'src/js/sjcl/core/sha512.js',
-  'src/js/sjcl/core/sha1.js',
-  'src/js/sjcl/core/ccm.js',
-  'src/js/sjcl/core/gcm.js',
-  // 'src/js/sjcl/core/cbc.js',
-  // 'src/js/sjcl/core/ocb2.js',
-  'src/js/sjcl/core/hmac.js',
-  'src/js/sjcl/core/pbkdf2.js',
-  'src/js/sjcl/core/random.js',
-  'src/js/sjcl/core/convenience.js',
-  'src/js/sjcl/core/bn.js',
-  'src/js/sjcl/core/ecc.js',
-  'src/js/sjcl/core/srp.js',
-  'src/js/sjcl-custom/sjcl-ecc-pointextras.js',
-  'src/js/sjcl-custom/sjcl-secp256k1.js',
-  'src/js/sjcl-custom/sjcl-ripemd160.js',
-  'src/js/sjcl-custom/sjcl-extramath.js',
-  'src/js/sjcl-custom/sjcl-montgomery.js',
-  'src/js/sjcl-custom/sjcl-validecc.js',
-  'src/js/sjcl-custom/sjcl-ecdsa-canonical.js',
-  'src/js/sjcl-custom/sjcl-ecdsa-der.js',
-  'src/js/sjcl-custom/sjcl-ecdsa-recoverablepublickey.js',
-  'src/js/sjcl-custom/sjcl-jacobi.js'
-];
-
-gulp.task('concat-sjcl', function() {
-  return gulp.src(sjclSrc)
-  .pipe(concat('sjcl.js'))
-  .pipe(gulp.dest('./build/'));
-});
-
-gulp.task('build', [ 'concat-sjcl' ], function(callback) {
+gulp.task('build', [], function(callback) {
   webpack({
     cache: true,
-    entry: './src/js/ripple/index.js',
+    entry: './src/index.js',
     output: {
       library: 'stellar',
       path: './build/',
@@ -74,10 +34,10 @@ gulp.task('build-min', [ 'build' ], function(callback) {
   .pipe(gulp.dest('./build/'));
 });
 
-gulp.task('build-debug', [ 'concat-sjcl' ], function(callback) {
+gulp.task('build-debug', [], function(callback) {
   webpack({
     cache: true,
-    entry: './src/js/ripple/index.js',
+    entry: './src/index.js',
     output: {
       library: 'stellar',
       path: './build/',
@@ -89,7 +49,7 @@ gulp.task('build-debug', [ 'concat-sjcl' ], function(callback) {
 });
 
 gulp.task('lint', function() {
-  gulp.src('src/js/ripple/*.js')
+  gulp.src('src/*.js')
   .pipe(jshint())
   .pipe(map(function(file, callback) {
     if (!file.jshint.success) {
@@ -115,7 +75,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('src/js/ripple/*', [ 'build-debug' ]);
+  gulp.watch('src/*', [ 'build-debug' ]);
 });
 
-gulp.task('default', [ 'concat-sjcl', 'build', 'build-debug', 'build-min' ]);
+gulp.task('default', [ 'build', 'build-debug', 'build-min' ]);
