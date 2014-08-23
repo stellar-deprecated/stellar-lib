@@ -1,26 +1,26 @@
 var request   = require('superagent');
 var Currency  = require('./currency').Currency;
 
-var RippleTxt = {
+var StellarTxt = {
   txts : { }
 };
 
-RippleTxt.urlTemplates = [
-  'https://{{domain}}/ripple.txt',
-  'https://www.{{domain}}/ripple.txt',
-  'https://ripple.{{domain}}/ripple.txt',
-  'http://{{domain}}/ripple.txt',
-  'http://www.{{domain}}/ripple.txt',
-  'http://ripple.{{domain}}/ripple.txt'
+StellarTxt.urlTemplates = [
+  'https://{{domain}}/stellar.txt',
+  'https://www.{{domain}}/stellar.txt',
+  'https://stellar.{{domain}}/stellar.txt',
+  'http://{{domain}}/stellar.txt',
+  'http://www.{{domain}}/stellar.txt',
+  'http://stellar.{{domain}}/stellar.txt'
 ];
 
 /**
- * Gets the ripple.txt file for the given domain
+ * Gets the stellar.txt file for the given domain
  * @param {string}    domain - Domain to retrieve file from
  * @param {function}  fn - Callback function
  */
 
-RippleTxt.get = function(domain, fn) {
+StellarTxt.get = function(domain, fn) {
   var self = this;
 
   if (self.txts[domain]) {
@@ -28,10 +28,10 @@ RippleTxt.get = function(domain, fn) {
   }
 
   ;(function nextUrl(i) {
-    var url = RippleTxt.urlTemplates[i];
+    var url = StellarTxt.urlTemplates[i];
     
     if (!url) {
-      return fn(new Error('No ripple.txt found'));
+      return fn(new Error('No stellar.txt found'));
     }
 
     url = url.replace('{{domain}}', domain);
@@ -50,11 +50,11 @@ RippleTxt.get = function(domain, fn) {
 };
 
 /**
- * Parse a ripple.txt file
- * @param {string}  txt - Unparsed ripple.txt data
+ * Parse a stellar.txt file
+ * @param {string}  txt - Unparsed stellar.txt data
  */
 
-RippleTxt.parse = function(txt) {
+StellarTxt.parse = function(txt) {
   var currentSection = '';
   var sections = { };
   
@@ -88,7 +88,7 @@ RippleTxt.parse = function(txt) {
  * @param {Object} url
  */
 
-RippleTxt.extractDomain = function (url) {
+StellarTxt.extractDomain = function (url) {
   match = /[^.]*\.[^.]{2,3}(?:\.[^.]{2,3})?([^.\?][^\?.]+?)?$/.exec(url);
   return match && match[0] ? match[0] : url;
 };
@@ -96,13 +96,13 @@ RippleTxt.extractDomain = function (url) {
 /**
  * getCurrencies
  * returns domain, issuer account and currency object
- * for each currency found in the domain's ripple.txt file
+ * for each currency found in the domain's stellar.txt file
  * @param {Object} domain
  * @param {Object} fn
  */
 
-RippleTxt.getCurrencies = function(domain, fn) {
-  domain = RippleTxt.extractDomain(domain);
+StellarTxt.getCurrencies = function(domain, fn) {
+  domain = StellarTxt.extractDomain(domain);
   this.get(domain, function(err, txt) {
     if (err) {
       return fn(err);  
@@ -130,4 +130,4 @@ RippleTxt.getCurrencies = function(domain, fn) {
   });
 }; 
 
-exports.RippleTxt = RippleTxt;
+exports.StellarTxt = StellarTxt;

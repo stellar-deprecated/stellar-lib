@@ -263,7 +263,7 @@ Currency.prototype.has_interest = function() {
 
 /**
  *
- * @param referenceDate - number of seconds since the Ripple Epoch (0:00 on January 1, 2000 UTC)
+ * @param referenceDate - number of seconds since the Stellar Epoch (0:00 on January 1, 2000 UTC)
  *                        used to calculate the interest over provided interval
  *                        pass in one years worth of seconds to ge the yearly interest
  * @returns {number} - interest for provided interval, can be negative for demurred currencies

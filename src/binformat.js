@@ -119,7 +119,7 @@ var FIELDS_MAP = exports.fields = {
     8: 'Fee',
     9: 'SendMax',
     16: 'MinimumOffer',
-    17: 'RippleEscrow',
+    17: 'StellarEscrow',
     18: 'DeliveredAmount'
   },
   7: { // VL
@@ -262,7 +262,7 @@ exports.tx = {
     [ 'Expiration'         , REQUIRED ],
     [ 'BondAmount'         , REQUIRED ],
     [ 'StampEscrow'        , REQUIRED ],
-    [ 'RippleEscrow'       , REQUIRED ],
+    [ 'StellarEscrow'       , REQUIRED ],
     [ 'CreateCode'         , OPTIONAL ],
     [ 'FundCode'           , OPTIONAL ],
     [ 'RemoveCode'         , OPTIONAL ],
@@ -366,7 +366,7 @@ exports.ledger = {
     ['TakerPays',           REQUIRED],
     ['TakerGets',           REQUIRED],
     ['Account',             REQUIRED]]),
-  RippleState: [114].concat(sleBase,[
+  StellarState: [114].concat(sleBase,[
     ['LedgerEntryType',     REQUIRED],
     ['Flags',               REQUIRED],
     ['PreviousTxnLgrSeq',   REQUIRED],

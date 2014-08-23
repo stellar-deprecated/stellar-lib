@@ -26,12 +26,12 @@ var Account      = require('./account').Account;
 var Meta         = require('./meta').Meta;
 var OrderBook    = require('./orderbook').OrderBook;
 var PathFind     = require('./pathfind').PathFind;
-var RippleError  = require('./rippleerror').RippleError;
+var StellarError  = require('./stellarerror').StellarError;
 var utils        = require('./utils');
 var config       = require('./config');
 
 /**
- *    Interface to manage the connection to a Ripple server.
+ *    Interface to manage the connection to a Stellar server.
  *
  *    This implementation uses WebSockets.
  *
@@ -261,14 +261,14 @@ Remote.flags = {
     Sell:            0x00020000  // True, offer was placed as a sell.
   },
 
-  // Ripple State
+  // Stellar State
   state: {
     LowReserve:      0x00010000, // True, if entry counts toward reserve.
     HighReserve:     0x00020000,
     LowAuth:         0x00040000,
     HighAuth:        0x00080000,
-    LowNoRipple:     0x00100000,
-    HighNoRipple:    0x00200000
+    LowNoStellar:     0x00100000,
+    HighNoStellar:    0x00200000
   }
 };
 
@@ -459,7 +459,7 @@ Remote.prototype.addServer = function(opts) {
 };
 
 /**
- * Connect to the Ripple network.
+ * Connect to the Stellar network.
  *
  * @param {Function} callback
  * @api public
@@ -497,7 +497,7 @@ Remote.prototype.connect = function(online) {
 };
 
 /**
- * Disconnect from the Ripple network.
+ * Disconnect from the Stellar network.
  *
  * @param {Function} callback
  * @api public
@@ -542,7 +542,7 @@ Remote.prototype._handleMessage = function(message, server) {
 
   if (!Remote.isValidMessage(message)) {
     // Unexpected response from remote.
-    this.emit('error', new RippleError('remoteUnexpected', 'Unexpected response from remote'));
+    this.emit('error', new StellarError('remoteUnexpected', 'Unexpected response from remote'));
     return;
   }
 
@@ -943,7 +943,7 @@ Remote.prototype.requestLedgerEntry = function(type, callback) {
         // A specific ledger is requested.
         // XXX Add caching.
         // else if (req.ledger_index)
-        // else if ('ripple_state' === request.type)         // YYY Could be cached per ledger.
+        // else if ('stellar_state' === request.type)         // YYY Could be cached per ledger.
       //}
 
       if (!self._ledger_hash && type === 'account_root') {
@@ -1134,7 +1134,7 @@ Remote.accountRequest = function(type, account, accountIndex, ledger, peer, call
 /**
  * Request account_info
  *
- * @param {String} ripple address
+ * @param {String} stellar address
  * @param [Function] callback
  * @return {Request}
  */
@@ -1147,7 +1147,7 @@ Remote.prototype.requestAccountInfo = function(account, callback) {
 /**
  * Request account_currencies
  *
- * @param {String} ripple address
+ * @param {String} stellar address
  * @param [Function] callback
  * @return {Request}
  */
@@ -1160,7 +1160,7 @@ Remote.prototype.requestAccountCurrencies = function(account, callback) {
 /**
  * Request account_lines
  *
- * @param {String} ripple address
+ * @param {String} stellar address
  * @param {Number] sub-account index
  * @param [String|Number] ledger
  * @param [String] peer
@@ -1178,7 +1178,7 @@ Remote.prototype.requestAccountLines = function(account, accountIndex, ledger, p
 /**
  * Request account_offers
  *
- * @param {String} ripple address
+ * @param {String} stellar address
  * @param {Number] sub-account index
  * @param [String|Number] ledger
  * @param [String] peer
@@ -1524,7 +1524,7 @@ Remote.prototype._serverPrepareSubscribe = function(callback) {
 Remote.prototype.ledgerAccept =
 Remote.prototype.requestLedgerAccept = function(callback) {
   if (!this._stand_alone) {
-    this.emit('error', new RippleError('notStandAlone'));
+    this.emit('error', new StellarError('notStandAlone'));
     return;
   }
 
@@ -1869,7 +1869,7 @@ Remote.prototype.dirtyAccountRoot = function(account) {
  * @return {Request}
  */
 
-Remote.prototype.requestRippleBalance = function(account, issuer, currency, ledger, callback) {
+Remote.prototype.requestStellarBalance = function(account, issuer, currency, ledger, callback) {
   if (typeof account === 'object') {
     var options = account;
     callback = issuer;
@@ -1879,12 +1879,12 @@ Remote.prototype.requestRippleBalance = function(account, issuer, currency, ledg
     account  = options.account;
   }
 
-  var request = this.requestLedgerEntry('ripple_state'); // YYY Could be cached per ledger.
+  var request = this.requestLedgerEntry('stellar_state'); // YYY Could be cached per ledger.
 
-  request.rippleState(account, issuer, currency);
+  request.stellarState(account, issuer, currency);
   request.ledgerChoose(ledger);
 
-  function rippleState(message) {
+  function stellarState(message) {
     var node            = message.node;
     var lowLimit        = Amount.from_json(node.LowLimit);
     var highLimit       = Amount.from_json(node.HighLimit);
@@ -1893,7 +1893,7 @@ Remote.prototype.requestRippleBalance = function(account, issuer, currency, ledg
     // accountHigh implies: for account: balance is negated, highLimit is the limit set by account.
     var accountHigh     = UInt160.from_json(account).equals(highLimit.issuer());
 
-    request.emit('ripple_state', {
+    request.emit('stellar_state', {
       account_balance     : ( accountHigh ? balance.negate() : balance.copy()).parse_issuer(account),
       peer_balance        : (!accountHigh ? balance.negate() : balance.copy()).parse_issuer(issuer),
 
@@ -1908,8 +1908,8 @@ Remote.prototype.requestRippleBalance = function(account, issuer, currency, ledg
     });
   };
 
-  request.once('success', rippleState);
-  request.callback(callback, 'ripple_state');
+  request.once('success', stellarState);
+  request.callback(callback, 'stellar_state');
 
   return request;
 };
@@ -1936,7 +1936,7 @@ Remote.prepareCurrencies = function(currency) {
  * @return {Request}
  */
 
-Remote.prototype.requestRipplePathFind = function(src_account, dst_account, dst_amount, src_currencies, callback) {
+Remote.prototype.requestStellarPathFind = function(src_account, dst_account, dst_amount, src_currencies, callback) {
   if (typeof src_account === 'object') {
     var options = src_account;
     callback       = dst_account;

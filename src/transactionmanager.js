@@ -1,7 +1,7 @@
 var util         = require('util');
 var EventEmitter = require('events').EventEmitter;
 var Transaction  = require('./transaction').Transaction;
-var RippleError  = require('./rippleerror').RippleError;
+var StellarError  = require('./stellarerror').StellarError;
 var PendingQueue = require('./transactionqueue').TransactionQueue;
 
 /**
@@ -328,7 +328,7 @@ TransactionManager.prototype._request = function(tx) {
   var remote = this._remote;
 
   if (tx.attempts > 10) {
-    return tx.emit('error', new RippleError('tejAttemptsExceeded'));
+    return tx.emit('error', new StellarError('tejAttemptsExceeded'));
   }
 
   if (tx.attempts > 0 && !remote.local_signing) {
@@ -336,7 +336,7 @@ TransactionManager.prototype._request = function(tx) {
     + 'It is not possible to resubmit transactions automatically safely without '
     + 'synthesizing the transactionID locally. See `local_signing` config option';
 
-    return tx.emit('error', new RippleError('tejLocalSigningRequired', message));
+    return tx.emit('error', new StellarError('tejLocalSigningRequired', message));
   }
 
   tx.emit('presubmit');
@@ -609,7 +609,7 @@ TransactionManager.prototype.submit = function(tx) {
   });
 
   tx.once('abort', function() {
-    tx.emit('error', new RippleError('tejAbort', 'Transaction aborted'));
+    tx.emit('error', new StellarError('tejAbort', 'Transaction aborted'));
   });
 
   if (typeof tx.tx_json.Sequence !== 'number') {

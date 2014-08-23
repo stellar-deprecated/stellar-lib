@@ -142,8 +142,8 @@ Server.onlineStates = [
 
 /**
  * This is the final interface between client code and a socket connection to a
- * `rippled` server. As such, this is a decent hook point to allow a WebSocket
- * interface conforming object to be used as a basis to mock rippled. This
+ * `stellard` server. As such, this is a decent hook point to allow a WebSocket
+ * interface conforming object to be used as a basis to mock stellard. This
  * avoids the need to bind a websocket server to a port and allows a more
  * synchronous style of code to represent a client <-> server message sequence.
  * We can also use this to log a message sequence to a buffer.
@@ -153,7 +153,7 @@ Server.onlineStates = [
 
 Server.websocketConstructor = function() {
   // We require this late, because websocket shims may be loaded after
-  // ripple-lib in the browser
+  // stellar-lib in the browser
   return require('ws');
 };
 
@@ -255,7 +255,7 @@ Server.prototype._updateScore = function(type, data) {
 
 /**
  * Get the remote address for a server.
- * Incompatible with ripple-lib client build
+ * Incompatible with stellar-lib client build
  */
 
 Server.prototype._remoteAddress = function() {
@@ -268,7 +268,7 @@ Server.prototype._remoteAddress = function() {
 };
 
 /**
- * Disconnect from rippled WebSocket server
+ * Disconnect from stellard WebSocket server
  *
  * @api public
  */
@@ -282,7 +282,7 @@ Server.prototype.disconnect = function() {
 };
 
 /**
- * Reconnect to rippled WebSocket server
+ * Reconnect to stellard WebSocket server
  *
  * @api public
  */
@@ -301,7 +301,7 @@ Server.prototype.reconnect = function() {
 };
 
 /**
- * Connect to rippled WebSocket server and subscribe to events that are
+ * Connect to stellard WebSocket server and subscribe to events that are
  * internally requisite. Automatically retry connections with a gradual
  * back-off
  *
@@ -378,7 +378,7 @@ Server.prototype.connect = function() {
 };
 
 /**
- * Retry connection to rippled server
+ * Retry connection to stellard server
  *
  * @api private
  */
@@ -433,7 +433,7 @@ Server.prototype._handleClose = function() {
 };
 
 /**
- * Handle incoming messages from rippled WebSocket server
+ * Handle incoming messages from stellard WebSocket server
  *
  * @param {JSON-parseable} message
  * @api private
@@ -554,7 +554,7 @@ Server.prototype._handleResponseSubscribe = function(message) {
 };
 
 /**
- * Check that received message from rippled is valid
+ * Check that received message from stellard is valid
  *
  * @api private
  */
@@ -577,7 +577,7 @@ Server.isLoadStatus = function(message) {
 };
 
 /**
- * Send JSON message to rippled WebSocket server
+ * Send JSON message to stellard WebSocket server
  *
  * @param {JSON-Stringifiable} message
  * @api private
@@ -593,7 +593,7 @@ Server.prototype._sendMessage = function(message) {
  * Submit a Request object.
  *
  * Requests are indexed by message ID, which is repeated
- * in the response from rippled WebSocket server
+ * in the response from stellard WebSocket server
  *
  * @param {Request} request
  * @api private

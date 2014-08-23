@@ -51,7 +51,7 @@ var Currency         = require('./amount').Currency;
 var UInt160          = require('./amount').UInt160;
 var Seed             = require('./seed').Seed;
 var SerializedObject = require('./serializedobject').SerializedObject;
-var RippleError      = require('./rippleerror').RippleError;
+var StellarError      = require('./stellarerror').StellarError;
 var hashprefixes     = require('./hashprefixes');
 var config           = require('./config');
 
@@ -138,8 +138,8 @@ Transaction.flags = {
 
   TrustSet: {
     SetAuth:            0x00010000,
-    NoRipple:           0x00020000,
-    ClearNoRipple:      0x00040000
+    NoStellar:           0x00020000,
+    ClearNoStellar:      0x00040000
   },
 
   OfferCreate: {
@@ -150,7 +150,7 @@ Transaction.flags = {
   },
 
   Payment: {
-    NoRippleDirect:     0x00010000,
+    NoStellarDirect:     0x00010000,
     PartialPayment:     0x00020000,
     LimitQuality:       0x00040000
   }
@@ -245,11 +245,11 @@ Transaction.prototype._accountSecret = function(account) {
 /**
  * Returns the number of fee units this transaction will cost.
  *
- * Each Ripple transaction based on its type and makeup costs a certain number
+ * Each Stellar transaction based on its type and makeup costs a certain number
  * of fee units. The fee units are calculated on a per-server basis based on the
  * current load on both the network and the server.
  *
- * @see https://ripple.com/wiki/Transaction_Fee
+ * @see https://stellar.com/wiki/Transaction_Fee
  *
  * @return {Number} Number of fee units for this transaction.
  */
@@ -309,14 +309,14 @@ Transaction.prototype._computeFee = function() {
 Transaction.prototype.complete = function() {
   if (this.remote) {
     if (!this.remote.trusted && !this.remote.local_signing) {
-      this.emit('error', new RippleError('tejServerUntrusted', 'Attempt to give secret to untrusted server'));
+      this.emit('error', new StellarError('tejServerUntrusted', 'Attempt to give secret to untrusted server'));
       return false;
     }
   }
 
   // Try to auto-fill the secret
   if (!this._secret && !(this._secret = this._accountSecret(this.tx_json.Account))) {
-    this.emit('error', new RippleError('tejSecretUnknown', 'Missing secret'));
+    this.emit('error', new StellarError('tejSecretUnknown', 'Missing secret'));
     return false;
   }
 
@@ -326,7 +326,7 @@ Transaction.prototype.complete = function() {
       var key  = seed.get_key();
       this.tx_json.SigningPubKey = key.to_hex_pub();
     } catch(e) {
-      this.emit('error', new RippleError('tejSecretInvalid', 'Invalid secret'));
+      this.emit('error', new StellarError('tejSecretInvalid', 'Invalid secret'));
       return false;
     }
   }
@@ -336,14 +336,14 @@ Transaction.prototype.complete = function() {
   if (this.remote && typeof this.tx_json.Fee === 'undefined') {
     if (this.remote.local_fee || !this.remote.trusted) {
       if (!(this.tx_json.Fee = this._computeFee())) {
-        this.emit('error', new RippleError('tejUnconnected'));
+        this.emit('error', new StellarError('tejUnconnected'));
         return;
       }
     }
   }
 
   if (Number(this.tx_json.Fee) > this._maxFee) {
-    this.emit('error', new RippleError('tejMaxFeeExceeded', 'Max fee exceeded'));
+    this.emit('error', new StellarError('tejMaxFeeExceeded', 'Max fee exceeded'));
     return false;
   }
 
@@ -597,7 +597,7 @@ Transaction.prototype.setFlags = function(flags) {
     if (transaction_flags.hasOwnProperty(flag)) {
       this.tx_json.Flags += transaction_flags[flag];
     } else {
-      return this.emit('error', new RippleError('tejInvalidFlag'));
+      return this.emit('error', new StellarError('tejInvalidFlag'));
     }
   }
 
@@ -761,7 +761,7 @@ Transaction.prototype.offerCreate = function(src, taker_pays, taker_gets, expira
   this.tx_json.TakerGets       = Amount.json_rewrite(taker_gets);
 
   if (expiration) {
-    this.tx_json.Expiration = utils.time.toRipple(expiration);
+    this.tx_json.Expiration = utils.time.toStellar(expiration);
   }
 
   if (cancel_sequence) {
@@ -776,7 +776,7 @@ Transaction.prototype.offerCreate = function(src, taker_pays, taker_gets, expira
  *  If the RegularKey is set, the private key that corresponds to
  *  it can be used to sign transactions instead of the master key
  *
- *  The RegularKey must be a valid Ripple Address, or a Hash160 of
+ *  The RegularKey must be a valid Stellar Address, or a Hash160 of
  *  the public key corresponding to the new private signing key.
  */
 
@@ -792,7 +792,7 @@ Transaction.prototype.setRegularKey = function(src, regular_key) {
   }
 
   if (!UInt160.is_valid(regular_key)) {
-    throw new Error('RegularKey must be a valid Ripple Address (a Hash160 of the public key)');
+    throw new Error('RegularKey must be a valid Stellar Address (a Hash160 of the public key)');
   }
 
   this.tx_json.TransactionType = 'SetRegularKey';
@@ -844,7 +844,7 @@ Transaction.prototype.payment = function(src, dst, amount) {
 };
 
 Transaction.prototype.trustSet =
-Transaction.prototype.rippleLineSet = function(src, limit, quality_in, quality_out) {
+Transaction.prototype.stellarLineSet = function(src, limit, quality_in, quality_out) {
   if (typeof src === 'object') {
     var options = src;
     quality_out = options.quality_out;
@@ -884,8 +884,8 @@ Transaction.prototype.submit = function(callback) {
   this.callback = (typeof callback === 'function') ? callback : function(){};
 
   function transactionError(error, message) {
-    if (!(error instanceof RippleError)) {
-      error = new RippleError(error, message);
+    if (!(error instanceof StellarError)) {
+      error = new StellarError(error, message);
     }
     self.callback(error);
   };
@@ -903,7 +903,7 @@ Transaction.prototype.submit = function(callback) {
   var account = this.tx_json.Account;
 
   if (!UInt160.is_valid(account)) {
-    return this.emit('error', new RippleError('tejInvalidAccount', 'Account is missing or invalid'));
+    return this.emit('error', new StellarError('tejInvalidAccount', 'Account is missing or invalid'));
   }
 
   // YYY Might check paths for invalid accounts.

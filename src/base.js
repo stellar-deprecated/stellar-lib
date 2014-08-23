@@ -7,7 +7,7 @@ var BigInteger = require('jsbn');
 var Base = {};
 
 var alphabets = Base.alphabets = {
-  ripple  :  "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz",
+  stellar  :  "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz",
   tipple  :  "GPShNAF39wBUDnERHJKLM4pQrsT7VWXYZ2bcdeCg65jkm8ofqi1tuvaxyz",
   bitcoin :  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 };
@@ -33,7 +33,7 @@ function sha256hash(bytes) {
 // --> input: big-endian array of bytes.
 // <-- string at least as long as input.
 Base.encode = function(input, alpha) {
-  var alphabet = alphabets[alpha || 'ripple'];
+  var alphabet = alphabets[alpha || 'stellar'];
   var bi_base  = new BigInteger(String(alphabet.length));
   var bi_q     = new BigInteger();
   var bi_r     = new BigInteger();
@@ -60,7 +60,7 @@ Base.decode = function(input, alpha) {
     return void(0);
   }
 
-  var alphabet = alphabets[alpha || 'ripple'];
+  var alphabet = alphabets[alpha || 'stellar'];
   var bi_base  = new BigInteger(String(alphabet.length));
   var bi_value = new BigInteger();
   var i;

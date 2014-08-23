@@ -189,7 +189,7 @@ Account.prototype.getNextSequence = function(callback) {
 };
 
 /**
- * Retrieve this account's Ripple trust lines.
+ * Retrieve this account's Stellar trust lines.
  *
  * To keep up-to-date with changes to the AccountRoot entry, subscribe to the
  * 'lines' event. (Not yet implemented.)
@@ -220,7 +220,7 @@ Account.prototype.lines = function(callback) {
  * Retrieve this account's single trust line.
  *
  * @param {string} currency Currency
- * @param {string} address Ripple address
+ * @param {string} address Stellar address
  * @param {function(err, line)} callback Called with the result
  * @returns {Account}
  */
@@ -297,7 +297,7 @@ Account.prototype.submit = function(transaction) {
 /**
  *  Check whether the given public key is valid for this account
  *
- *  @param {Hex-encoded String|RippleAddress} public_key
+ *  @param {Hex-encoded String|StellarAddress} public_key
  *  @param {Function} callback
  *
  *  @callback
@@ -364,15 +364,15 @@ Account.prototype.publicKeyIsActive = function(public_key, callback) {
 };
 
 /**
- *  Convert a hex-encoded public key to a Ripple Address
+ *  Convert a hex-encoded public key to a Stellar Address
  *
  *  @static
  *
- *  @param {Hex-encoded string|RippleAddress} public_key
- *  @returns {RippleAddress}
+ *  @param {Hex-encoded string|StellarAddress} public_key
+ *  @returns {StellarAddress}
  */
 Account._publicKeyToAddress = function(public_key) {
-  // Based on functions in /src/js/ripple/keypair.js
+  // Based on functions in /src/js/stellar/keypair.js
   function hexToUInt160(public_key) {
     var bits = sjcl.codec.hex.toBits(public_key);
     var hash = sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));

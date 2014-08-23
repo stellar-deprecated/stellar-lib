@@ -63,8 +63,8 @@ Meta.prototype.diffType = function(an) {
  *     // Type of diff, e.g. CreatedNode, ModifiedNode
  *     diffType: 'CreatedNode'
  *
- *     // Type of node affected, e.g. RippleState, AccountRoot
- *     entryType: 'RippleState',
+ *     // Type of node affected, e.g. StellarState, AccountRoot
+ *     entryType: 'StellarState',
  *
  *     // Index of the ledger this change occurred in
  *     ledgerIndex: '01AB01AB...',
