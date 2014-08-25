@@ -28,7 +28,7 @@ gulp.task('build', [], function(callback) {
 });
 
 gulp.task('build-min', [ 'build' ], function(callback) {
-  return gulp.src([ './build/ripple-', '.js' ].join(pkg.version))
+  return gulp.src([ './build/stellar-', '.js' ].join(pkg.version))
   .pipe(uglify())
   .pipe(rename([ 'stellar-', '-min.js' ].join(pkg.version)))
   .pipe(gulp.dest('./build/'));
