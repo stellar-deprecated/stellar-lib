@@ -1,6 +1,6 @@
 var assert     = require('assert');
 var utils      = require('./testutils');
-var BigInteger = require('../src/js/jsbn/jsbn').BigInteger;
+var BigInteger = require('jsbn');
 var Amount     = utils.load_module('amount').Amount;
 var UInt160    = utils.load_module('uint160').UInt160;
 var config     = utils.get_config();

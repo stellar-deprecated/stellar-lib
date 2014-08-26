@@ -1,4 +1,4 @@
-var ripple = require('../src/js/ripple');
+var ripple = require('../src');
 
 exports.get_config = get_config;
 
@@ -24,8 +24,8 @@ function load_module(name) {
   if (process.env.RIPPLE_LIB_COV) {
     return require('../src-cov/js/ripple/' + name)
   } else if (!ripple.hasOwnProperty(name)) {
-    return require('../src/js/ripple/' + name);
+    return require('../src/' + name);
   } else {
-    return require('../src/js/ripple')[name];
+    return require('../src')[name];
   }
 };
