@@ -136,6 +136,24 @@ function fromTimestamp(rpepoch) {
   return Math.round(rpepoch / 1000) - 0x386D4380;
 };
 
+/**
+ *  Exponentially increases the average time between tries.
+ *
+ * @param {Number} tries The number of times that an action was tried, but failed.
+ * @param {Number} [gain] The constant used to linearly transform (multiply to) the time.
+ * @param {Number} [offset] The constant used to linearly offset (add to) the time.
+ */
+function expBackoff(tries, gain, offset) {
+  gain = gain || 1;
+  offset = offset || 0;
+
+  // http://en.wikipedia.org/wiki/Exponential_backoff
+  var t = Math.random() * (Math.pow(2, tries) - 1);
+
+  // https://code.google.com/p/google-http-java-client/wiki/ExponentialBackoff
+  return offset + gain * t;
+}
+
 exports.time = {
   fromStellar: toTimestamp,
   toStellar: fromTimestamp
@@ -152,3 +170,4 @@ exports.assert        = assert;
 exports.arrayUnique   = arrayUnique;
 exports.toTimestamp   = toTimestamp;
 exports.fromTimestamp = fromTimestamp;
+exports.expBackoff    = expBackoff;
