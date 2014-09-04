@@ -10,7 +10,7 @@
     "Makefile",
     "Gruntfile.js"
   ],
-  "main": "src/js/ripple",
+  "main": "src/index",
   "directories": {
     "test": "test"
   },
