@@ -17,5 +17,6 @@ exports.utils            = require('./utils');
 exports.Server           = require('./server').Server;
 
 exports.sjcl             = require('sjcl');
+exports.sjcl.codec.bytes = require('sjcl-codec-bytes');
 
 exports.config = require('./config');
