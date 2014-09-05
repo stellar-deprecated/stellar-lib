@@ -26,6 +26,7 @@
         "jsbn": "~0.0.0"
     },
     "devDependencies": {
+        "ws": "^0.4.32",
         "mocha": "~1.14.0",
         "gulp": "~3.6.2",
         "gulp-concat": "~2.2.0",
