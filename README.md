@@ -7,7 +7,7 @@
 ###Use stellar-lib for:
 
 + Connecting to a local or remote stellard in JavaScript (Node.js or browser)
-+ Issuing [stellard API](https://gostellar.org/api) requests
++ Issuing [stellard API](https://stellar.org/api) requests
 + Listening to events on the stellar network (transaction, ledger, etc.)
 + Signing and submitting transactions to the stellar network
 
@@ -26,8 +26,8 @@
 
 ###Also see:
 
-+ https://wiki.gostellar.org
-+ https://gostellar.org
++ https://wiki.stellar.org
++ https://stellar.org
 
 ##Getting `stellar-lib`
 
