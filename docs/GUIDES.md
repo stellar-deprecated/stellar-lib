@@ -46,11 +46,11 @@ All `Remote` functions return a `Request` object.
 
 A `Request` is an `EventEmitter` so you can listen for success or failure events -- or, instead, you can provide a callback to the `Remote` function.
 
-Here is an example, using `requestServerInfo()`, of how `Remote` functions can be used with event listeners (the first code block) or with a callback (the second block):
+Here is an example, using `request_server_info()`, of how `Remote` functions can be used with event listeners (the first code block) or with a callback (the second block):
 
 + Using a `Remote` function with `Request` event listeners:
 ```js
-var request = remote.requestServerInfo();
+var request = remote.request_server_info();
 request.on('success', function(res) {
   //handle success
 });
@@ -62,7 +62,7 @@ request.request(); // this triggers the request if it has not already been sent 
 
 + Using a `Remote` function with a callback:
 ```js
-remote.requestServerInfo(function(err, res) {
+remote.request_server_info(function(err, res) {
   if (err) {
     //handle error
   } else {
@@ -97,7 +97,7 @@ var AMOUNT     = Amount.from_human('1STR');
 var remote = new Remote({ /* Remote options */ });
 
 remote.connect(function() {
-  remote.setSecret(MY_ADDRESS, MY_SECRET);
+  remote.set_secret(MY_ADDRESS, MY_SECRET);
 
   var transaction = remote.transaction();
 
@@ -151,11 +151,11 @@ var EXPIRATION = tomorrow;
 var remote = new Remote({ /* Remote options */ });
 
 remote.connect(function() {
-  remote.setSecret(MY_ADDRESS, MY_SECRET);
+  remote.set_secret(MY_ADDRESS, MY_SECRET);
 
   var transaction = remote.transaction();
 
-  transaction.offerCreate({
+  transaction.offer_create({
     from: MY_ADDRESS, 
     buy: BUY_AMOUNT, 
     sell: SELL_AMOUNT, 
