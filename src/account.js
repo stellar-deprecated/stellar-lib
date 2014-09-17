@@ -382,7 +382,7 @@ Account._publicKeyToAddress = function(public_key) {
     return address.to_json();
   };
 
-  if (UInt160.isValid(public_key)) {
+  if (UInt160.is_valid(public_key)) {
     return public_key;
   } else if (/^[0-9a-fA-F]+$/.test(public_key)) {
     return hexToUInt160(public_key);
