@@ -153,7 +153,7 @@ Options:
 
 **requestAccountBalance(account, ledger, [callback])**
 
-Get the balance for an account. Returns an [Amount](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/amount.js) object.
+Get the balance for an account. Returns an [Amount](https://github.com/stellar/stellar-lib/blob/develop/src/amount.js) object.
 
 **requestAccountFlags(account, current, [callback])**
 
@@ -163,9 +163,9 @@ Return the flags for an account.
 
 Return the owner count for an account.
 
-**requestRippleBalance(account, issuer, currency, current, [callback])**
+**requestStellarBalance(account, issuer, currency, current, [callback])**
 
-Return a request to get a ripple balance
+Return a request to get a stellar balance
 
 
 
@@ -206,17 +206,17 @@ Sign a transaction.
 Submit a transaction to the network. This command is used internally to submit transactions with a greater degree of reliability. See [Submitting a payment to the network](GUIDES.md#3-submitting-a-payment-to-the-network) for details.
 
 
-**[requestRipplePathFind(src_account, dst_account, dst_amount, src_currencies, [callback])](https://www.gostellar.org/api/#api-find_path)**
+**[requestStellarPathFind(src_account, dst_account, dst_amount, src_currencies, [callback])](https://www.gostellar.org/api/#api-find_path)**
 
 
 **transaction([destination], [source], [amount], [callback])**
 
-Returns a [Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/transaction.js) object
+Returns a [Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/transaction.js) object
 
 
 #3. Transaction events
 
-[Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/js/ripple/transaction.js) objects are EventEmitters. They may emit the following events.
+[Transaction](https://github.com/stellar/stellar-lib/blob/develop/src/transaction.js) objects are EventEmitters. They may emit the following events.
 
 + `final` Transaction has erred or succeeded. This event indicates that the transaction has finished processing.
 + `error` Transaction has erred. This event is a final state.
