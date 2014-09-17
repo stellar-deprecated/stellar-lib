@@ -465,7 +465,11 @@ TransactionManager.prototype._request = function(tx) {
         transactionFeeClaimed(message);
         break;
       case 'ter':
-        transactionRetry(message);
+        if (message.result == 'terRETRY') {
+          transactionRetry(message);
+        } else {
+          transactionFailed(message);
+        }
         break;
       case 'tef':
         transactionFailed(message);
