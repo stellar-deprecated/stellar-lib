@@ -403,17 +403,7 @@ Server.prototype._retryConnect = function() {
 
   this._retry += 1;
 
-  var retryTimeout = (this._retry < 40)
-  // First, for 2 seconds: 20 times per second
-  ? (1000 / 20)
-  : (this._retry < 40 + 60)
-  // Then, for 1 minute: once per second
-  ? (1000)
-  : (this._retry < 40 + 60 + 60)
-  // Then, for 10 minutes: once every 10 seconds
-  ? (10 * 1000)
-  // Then: once every 30 seconds
-  : (30 * 1000);
+  var retryTimeout = util.expBackoff(this._retry, 100, 1000);
 
   function connectionRetry() {
     if (self._shouldConnect) {
