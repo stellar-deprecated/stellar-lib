@@ -16,7 +16,7 @@ var banner = '/*! <%= pkg.name %> - v<%= pkg.version %> - '
 + '* Copyright (c) <%= new Date().getFullYear() %> <%= pkg.author.name %>;'
 + ' Licensed <%= pkg.license %> */'
 
-gulp.task('build', [ 'sjcl' ], function(callback) {
+gulp.task('build', [], function(callback) {
   webpack({
     cache: true,
     entry: './src/index.js',
@@ -47,14 +47,6 @@ gulp.task('build-debug', [], function(callback) {
     debug: true,
     devtool: 'eval'
   }, callback);
-});
-
-gulp.task('sjcl', [], function(callback) {
-  // Add required components to the sjcl config and rebuild it.
-  return gulp.src('./config/sjcl.config.mk')
-    .pipe(rename('config.mk'))
-    .pipe(gulp.dest('./node_modules/sjcl/'))
-    .pipe(exec('make -C ./node_modules/sjcl/'));
 });
 
 gulp.task('lint', function() {
