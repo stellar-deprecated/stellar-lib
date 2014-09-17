@@ -62,11 +62,11 @@ A new `Remote` can be created with the following options:
 
 **[requestServerInfo([callback])](https://www.gostellar.org/api/#api-server_info)**
 
-Returns information about the state of the server. If you are connected to multiple servers and want to select by a particular host, use `request.setServer`. Example:
+Returns information about the state of the server. If you are connected to multiple servers and want to select by a particular host, use `request.set_server`. Example:
 
 ```js
-var request = remote.requestServerInfo();
-request.setServer('my.hostname');
+var request = remote.request_server_info();
+request.set_server('my.hostname');
 request.callback(function(err, res) {
 
 });
@@ -177,7 +177,7 @@ Return a request to get a ripple balance
 Return the offers for an order book as one or more pages.
 
 ```js
-var request = remote.requestBookOffers({
+var request = remote.request_book_offers({
   gets: {
     'currency':'STR'
   },
