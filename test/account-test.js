@@ -14,17 +14,16 @@ describe('Account', function(){
     });
 
     it('should return unchanged a valid UINT160', function(){
-      assert('rKXCummUHnenhYudNb9UoJ4mGBR75vFcgz' === Account._publicKeyToAddress('rKXCummUHnenhYudNb9UoJ4mGBR75vFcgz'));
+      assert('gngoGG1xMYUVspgxbRqu15J775qdgWhhz7' === Account._publicKeyToAddress('gngoGG1xMYUVspgxbRqu15J775qdgWhhz7'));
     });
 
     it('should parse a hex-encoded public key as a UINT160', function(){
-      assert('rKXCummUHnenhYudNb9UoJ4mGBR75vFcgz' === Account._publicKeyToAddress('025B32A54BFA33FB781581F49B235C0E2820C929FF41E677ADA5D3E53CFBA46332'));
+      assert('gHjrdfHvcmp6S9mUCbKXz5ESmmbbv9fqML' === Account._publicKeyToAddress('5CF6A3B394714B45EDAD91A909532C883D48F1864D9AB00010F62AE331CA32A9'));
     
-      assert('rLpq5RcRzA8FU1yUqEPW4xfsdwon7casuM' === Account._publicKeyToAddress('03BFA879C00D58CF55F2B5975FF9B5293008FF49BEFB3EE6BEE2814247BF561A23'));
+      assert('gsC3KK1fpkKThnB1G97RPXVSsh1dHpM9DK' === Account._publicKeyToAddress('16ABD7E8852BE91A5BC229B588F439426CF626A15CEE587AE71543FB25F9EF58'));
     
-      assert('rP4yWwjoDGF2iZSBdAQAgpC449YDezEbT1' === Account._publicKeyToAddress('02DF0AB18930B6410CA9F55CB37541F1FED891B8EDF8AB1D01D8F23018A4B204A7'));
+      assert('gpU6mQuVgUJhJggkCxZ4z6rTsAMeJrZhBy' === Account._publicKeyToAddress('13E5E08B2FC01CBC9684F07C6D470A04A7C36F2E72234B1FE51027DB15F9CB90'));
 
-      assert('rLdfp6eoR948KVxfn6EpaaNTKwfwXhzSeQ' === Account._publicKeyToAddress('0310C451A40CAFFD39D6B8A3BD61BF65BCA55246E9DABC3170EBE431D30655B61F'));
     });
 
   });
