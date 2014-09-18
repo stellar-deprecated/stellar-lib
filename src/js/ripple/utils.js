@@ -171,7 +171,7 @@ exports.expBackoff    = expBackoff;
 
 // Going up three levels is needed to escape the src-cov folder used for the
 // test coverage stuff.
-exports.sjcl = require('../../../build/sjcl');
+exports.sjcl = require('sjcl');
 exports.jsbn = require('../../../src/js/jsbn/jsbn');
 
 // vim:sw=2:sts=2:ts=8:et

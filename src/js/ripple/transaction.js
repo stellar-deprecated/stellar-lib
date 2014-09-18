@@ -130,7 +130,7 @@ Transaction.flags = {
     AllowXRP:           0x00200000
   },
   
-  AccountDelete: {
+  AccountMerge: {
   },
 
   Inflation:{
@@ -663,7 +663,7 @@ Transaction.prototype.accountSet = function(src, set_flag, clear_flag) {
 };
 
 
-Transaction.prototype.accountDelete = function(src, dst) {
+Transaction.prototype.accountMerge = function(src, dst) {
   if (typeof src === 'object') {
     var options = src;
     src  = options.source || options.from;
@@ -678,7 +678,7 @@ Transaction.prototype.accountDelete = function(src, dst) {
     throw new Error('Destination address invalid');
   }
   
-  this.tx_json.TransactionType  = 'AccountDelete';
+  this.tx_json.TransactionType  = 'AccountMerge';
   this.tx_json.Account          = UInt160.json_rewrite(src);
   this.tx_json.Destination      = UInt160.json_rewrite(dst);
   return this;
