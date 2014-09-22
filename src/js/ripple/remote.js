@@ -2162,8 +2162,8 @@ Remote.prototype.createTransaction = function(source, options, callback) {
 
   var transactionTypes = {
     payment:        'payment',
-	inflation:    'inflation',
-	accountdelete:'accountDelete',
+	inflation:      'inflation',
+	accountmerge:   'accountMerge',
     accountset:     'accountSet',
     trustset:       'trustSet',
     offercreate:    'offerCreate',
