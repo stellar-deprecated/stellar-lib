@@ -115,9 +115,9 @@ remote.connect(function() {
 
 ###A note on transaction fees
 
-A full description of network transaction fees can be found on the [Stellar Wiki](https://wiki.gostellar.org/Transaction_Fee).
+A full description of network transaction fees can be found on the [Stellar Wiki](https://wiki.stellar.org/Transaction_Fee).
 
-In short, transaction fees are very small amounts (on the order of ~10) of [Stroop](https://wiki.gostellar.org/Stroop) spent with every transaction. They are largely used to account for network load and prevent spam. With `stellar-lib`, transaction fees are calculated locally by default and the fee you are willing to pay is submitted along with your transaction.
+In short, transaction fees are very small amounts (on the order of ~10) of [Stroop](https://wiki.stellar.org/Stroop) spent with every transaction. They are largely used to account for network load and prevent spam. With `stellar-lib`, transaction fees are calculated locally by default and the fee you are willing to pay is submitted along with your transaction.
 
 Since the fee required for a transaction may change between the time when the original fee was calculated and the time when the transaction is submitted, it is wise to use the [`fee_cushion`](REFERENCE.md#1-remote-options) to ensure that the transaction will go through. For example, suppose the original fee calculated for a transaction was 10 stroop but at the instant the transaction is submitted the server is experiencing a higher load and it has raised its minimum fee to 12 stroop. Without a `fee_cusion`, this transaction would not be processed by the server, but with a `fee_cusion` of, say, 1.5 it would be processed and you would just pay the 2 extra stroop.
 
@@ -188,13 +188,13 @@ In some (relatively rare) cases you may want to subscribe to the network event f
 
   function transactionListener (transaction_data) {
     // handle transaction_data
-    // see https://www.gostellar.org/api/#api-subscribe for the format of transaction_data
+    // see https://www.stellar.org/api/#api-subscribe for the format of transaction_data
   }
 
   function ledgerListener (ledger_data) {
     // handle ledger_data
-    // see https://www.gostellar.org/api/#api-subscribe for the format of ledger_data
+    // see https://www.stellar.org/api/#api-subscribe for the format of ledger_data
   }
 ```
-* https://https://www.gostellar.org/api/#api-subscribe
+* https://https://www.stellar.org/api/#api-subscribe
 
