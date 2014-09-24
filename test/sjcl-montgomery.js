@@ -1,6 +1,6 @@
 var assert = require('assert');
 var utils  = require('./testutils');
-var sjcl   = require('../build/sjcl');
+var sjcl   = require('sjcl');
 
 function testExp(vec) {
   var actual = new sjcl.bn(vec.g).powermodMontgomery(new sjcl.bn(vec.e),

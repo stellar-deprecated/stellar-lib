@@ -1,6 +1,6 @@
 var assert = require('assert');
 var utils  = require('./testutils');
-var sjcl   = require('../build/sjcl');
+var sjcl   = require('sjcl');
 var Seed   = require('../src/js/ripple/seed').Seed;
 
 describe('SJCL ECDSA Canonicalization', function() {

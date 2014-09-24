@@ -1,6 +1,6 @@
 var assert            = require('assert');
 var utils             = require('./testutils');
-var sjcl              = require('../build/sjcl');
+var sjcl              = require('sjcl');
 
 describe('ECDSA signing with recoverable public key', function(){
 

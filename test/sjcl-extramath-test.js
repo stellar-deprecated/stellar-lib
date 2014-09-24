@@ -1,6 +1,6 @@
 var assert = require('assert');
 var utils  = require('./testutils');
-var sjcl   = require('../build/sjcl');
+var sjcl   = require('sjcl');
 
 describe('SJCL Extramath', function() {
   describe('setBitM', function() {
