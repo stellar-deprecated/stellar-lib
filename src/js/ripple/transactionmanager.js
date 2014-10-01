@@ -559,14 +559,6 @@ TransactionManager.prototype._request = function(tx) {
     tx.initialSubmitIndex = tx.submitIndex;
   }
 
-  if (!tx._setLastLedger) {
-    // Honor LastLedgerSequence set by user of API. If
-    // left unset by API, bump LastLedgerSequence
-    tx.tx_json.LastLedgerSequence = tx.submitIndex + 8;
-  }
-
-  tx.lastLedgerSequence = tx.tx_json.LastLedgerSequence;
-
   if (remote.local_signing) {
     tx.sign(prepareSubmit);
   } else {

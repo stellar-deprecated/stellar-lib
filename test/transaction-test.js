@@ -811,11 +811,11 @@ describe('Transaction', function() {
 
     transaction.lastLedger('a');
     assert.strictEqual(transaction.tx_json.LastLedgerSequence, void(0));
-    assert(!transaction._setLastLedger);
+    assert.strictEqual(transaction.lastLedgerSequence, void(0));
 
     transaction.lastLedger(12);
     assert.strictEqual(transaction.tx_json.LastLedgerSequence, 12);
-    assert(transaction._setLastLedger);
+    assert.strictEqual(transaction.lastLedgerSequence, 12);
   });
 
   it('Rewrite transaction path', function() {

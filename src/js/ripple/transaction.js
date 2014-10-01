@@ -479,8 +479,8 @@ Transaction.prototype.clientID = function(id) {
 
 Transaction.prototype.lastLedger = function(sequence) {
   if (typeof sequence === 'number') {
-    this._setLastLedger = true;
     this.tx_json.LastLedgerSequence = sequence;
+    this.lastLedgerSequence = sequence;
   }
   return this;
 };
