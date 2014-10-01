@@ -3,7 +3,7 @@
   "version": "0.9.2",
   "homepage": "https://github.com/stellar/stellar-lib",
   "description": "Stellar JavaScript client library",
-  "main": "build/stellar-0.9.2.js",
+  "main": "build/stellar-lib.js",
   "keywords": [
     "stellar",
     "javascript",
