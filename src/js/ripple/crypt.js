@@ -7,6 +7,7 @@ var request     = require('superagent');
 var querystring = require('querystring');
 var extend      = require("extend");
 var parser      = require("url");
+var ripemd160   = require("ripemd160");
 var Crypt       = { };
 
 var cryptConfig = {
@@ -308,6 +309,20 @@ Crypt.base64UrlToBase64 = function(encodedData) {
   }
 
   return encodedData;
+};
+
+/**
+ * ripemd160 buffer hash wrapper for bit arrays.
+ *
+ * @param {bitArray} bits The bit array to hash
+ *
+ * @return {bitArray} THe resulting hash
+ */
+
+Crypt.ripemd160 = function(bits) {
+  var buffer = new Buffer(sjcl.codec.hex.fromBits(bits), 'hex');
+  var result = ripemd160(buffer);
+  return sjcl.codec.hex.toBits(result.toString('hex'));
 };
 
 exports.Crypt = Crypt;

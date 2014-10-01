@@ -4,6 +4,7 @@ var tnacl = require('tweetnacl');
 var UInt160 = require('./uint160').UInt160;
 var UInt256 = require('./uint256').UInt256;
 var Base    = require('./base').Base;
+var Crypt   = require('./crypt.js').Crypt;
 
 /**
  * Creates an ED25519 key pair for signing.
@@ -63,7 +64,7 @@ KeyPair.prototype.to_hex_pub = function() {
 };
 
 function SHA256_RIPEMD160(bits) {
-  return sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+  return Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
 }
 
 KeyPair.prototype.get_address = function() {

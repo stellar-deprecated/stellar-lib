@@ -19,6 +19,7 @@ var UInt160            = require('./uint160').UInt160;
 var TransactionManager = require('./transactionmanager').TransactionManager;
 var sjcl               = require('./utils').sjcl;
 var Base               = require('./base').Base;
+var Crypt              = require('./crypt.js').Crypt;
 
 /**
  * @constructor Account
@@ -375,7 +376,7 @@ Account._publicKeyToAddress = function(public_key) {
   // Based on functions in /src/js/ripple/keypair.js
   function hexToUInt160(public_key) {
     var bits = sjcl.codec.hex.toBits(public_key);
-    var hash = sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+    var hash = Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
     var address = UInt160.from_bits(hash);
     address.set_version(Base.VER_ACCOUNT_ID);
 

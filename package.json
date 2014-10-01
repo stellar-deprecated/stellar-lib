@@ -23,7 +23,8 @@
         "gulp-uglify": "~0.3.0",
         "gulp-rename": "~1.2.0",
         "tweetnacl": "git+https://github.com/stellar/tweetnacl-js.git",
-	"sjcl": "git+https://github.com/stellar/sjcl.git"
+        "sjcl": "git+https://github.com/stellar/sjcl.git",
+        "ripemd160": "0.2.0"
     },
     "devDependencies": {
         "mocha": "~1.14.0",
