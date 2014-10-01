@@ -13,6 +13,7 @@ var UInt    = require('./uint').UInt;
 var UInt256 = require('./uint256').UInt256;
 var UInt160 = require('./uint160').UInt160;
 var KeyPair = require('./keypair').KeyPair;
+var Crypt   = require('./crypt.js').Crypt;
 
 var Seed = extend(function () {
   // Internal form: NaN or BigInteger
@@ -86,7 +87,7 @@ function firstHalfOfSHA512(bytes) {
 };
 
 function SHA256_RIPEMD160(bits) {
-  return sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+  return Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
 };
 
 /**

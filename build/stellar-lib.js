@@ -4009,6 +4009,7 @@ var stellar =
 	var TransactionManager = __webpack_require__(25).TransactionManager;
 	var sjcl               = __webpack_require__(19).sjcl;
 	var Base               = __webpack_require__(7).Base;
+	var Crypt              = __webpack_require__(26).Crypt;
 
 	/**
 	 * @constructor Account
@@ -4365,7 +4366,7 @@ var stellar =
 	  // Based on functions in /src/js/ripple/keypair.js
 	  function hexToUInt160(public_key) {
 	    var bits = sjcl.codec.hex.toBits(public_key);
-	    var hash = sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+	    var hash = Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
 	    var address = UInt160.from_bits(hash);
 	    address.set_version(Base.VER_ACCOUNT_ID);
 
@@ -4444,7 +4445,7 @@ var stellar =
 	var Seed             = __webpack_require__(10).Seed;
 	var SerializedObject = __webpack_require__(12).SerializedObject;
 	var RippleError      = __webpack_require__(13).RippleError;
-	var hashprefixes     = __webpack_require__(26);
+	var hashprefixes     = __webpack_require__(27);
 	var config           = __webpack_require__(21);
 
 	function Transaction(remote) {
@@ -5355,7 +5356,7 @@ var stellar =
 	var extend    = __webpack_require__(42);
 	var UInt160 = __webpack_require__(8).UInt160;
 	var utils = __webpack_require__(19);
-	var Float = __webpack_require__(27).Float;
+	var Float = __webpack_require__(28).Float;
 
 	//
 	// Currency support
@@ -5892,7 +5893,7 @@ var stellar =
 
 	var BigInteger = utils.jsbn.BigInteger;
 
-	var UInt = __webpack_require__(28).UInt;
+	var UInt = __webpack_require__(29).UInt;
 	var Base = __webpack_require__(7).Base;
 
 	//
@@ -5995,7 +5996,7 @@ var stellar =
 
 	var utils  = __webpack_require__(19);
 	var extend = __webpack_require__(42);
-	var UInt   = __webpack_require__(28).UInt;
+	var UInt   = __webpack_require__(29).UInt;
 
 	//
 	// UInt256 support
@@ -6033,10 +6034,11 @@ var stellar =
 	var BigInteger = utils.jsbn.BigInteger;
 
 	var Base    = __webpack_require__(7).Base;
-	var UInt    = __webpack_require__(28).UInt;
+	var UInt    = __webpack_require__(29).UInt;
 	var UInt256 = __webpack_require__(9).UInt256;
 	var UInt160 = __webpack_require__(8).UInt160;
-	var KeyPair = __webpack_require__(29).KeyPair;
+	var KeyPair = __webpack_require__(30).KeyPair;
+	var Crypt   = __webpack_require__(26).Crypt;
 
 	var Seed = extend(function () {
 	  // Internal form: NaN or BigInteger
@@ -6110,7 +6112,7 @@ var stellar =
 	};
 
 	function SHA256_RIPEMD160(bits) {
-	  return sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+	  return Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
 	};
 
 	/**
@@ -6318,9 +6320,9 @@ var stellar =
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var assert    = __webpack_require__(38);
 	var extend    = __webpack_require__(42);
 	var binformat = __webpack_require__(18);
-	var stypes    = __webpack_require__(30);
+	var stypes    = __webpack_require__(31);
 	var UInt256   = __webpack_require__(9).UInt256;
-	var Crypt     = __webpack_require__(31).Crypt;
+	var Crypt     = __webpack_require__(26).Crypt;
 	var utils     = __webpack_require__(19);
 
 	var sjcl = utils.sjcl;
@@ -6696,7 +6698,7 @@ var stellar =
 	var sjcl               = __webpack_require__(19).sjcl;
 	var Remote             = __webpack_require__(1).Remote;
 	var Seed               = __webpack_require__(10).Seed;
-	var KeyPair            = __webpack_require__(29).KeyPair;
+	var KeyPair            = __webpack_require__(30).KeyPair;
 	var Account            = __webpack_require__(4).Account;
 	var UInt160            = __webpack_require__(8).UInt160;
 
@@ -6903,7 +6905,7 @@ var stellar =
 	var async      = __webpack_require__(48);
 	var blobClient = __webpack_require__(32).BlobClient;
 	var AuthInfo   = __webpack_require__(16).AuthInfo;
-	var crypt      = __webpack_require__(31).Crypt;
+	var crypt      = __webpack_require__(26).Crypt;
 	var log        = __webpack_require__(24).sub('vault');
 	function VaultClient(opts) {
 	  
@@ -10160,6 +10162,341 @@ var stellar =
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var sjcl        = __webpack_require__(19).sjcl;
+	var base        = __webpack_require__(7).Base;
+	var Seed        = __webpack_require__(10).Seed;
+	var UInt160     = __webpack_require__(8).UInt160;
+	var UInt256     = __webpack_require__(9).UInt256;
+	var request     = __webpack_require__(49);
+	var querystring = __webpack_require__(50);
+	var extend      = __webpack_require__(42);
+	var parser      = __webpack_require__(41);
+	var ripemd160   = __webpack_require__(57);
+	var Crypt       = { };
+
+	var cryptConfig = {
+	  cipher : 'aes',
+	  mode   : 'ccm',
+	  ts     : 64,   // tag length
+	  ks     : 256,  // key size
+	  iter   : 1000  // iterations (key derivation)
+	};
+
+	/**
+	 * Full domain hash based on SHA512
+	 */
+
+	function fdh(data, bytelen) {
+	  var bitlen = bytelen << 3;
+
+	  if (typeof data === 'string') {
+	    data = sjcl.codec.utf8String.toBits(data);
+	  }
+
+	  // Add hashing rounds until we exceed desired length in bits
+	  var counter = 0, output = [];
+
+	  while (sjcl.bitArray.bitLength(output) < bitlen) {
+	    var hash = sjcl.hash.sha512.hash(sjcl.bitArray.concat([counter], data));
+	    output = sjcl.bitArray.concat(output, hash);
+	    counter++;
+	  }
+
+	  // Truncate to desired length
+	  output = sjcl.bitArray.clamp(output, bitlen);
+
+	  return output;
+	};
+
+	/**
+	 * This is a function to derive different hashes from the same key. 
+	 * Each hash is derived as HMAC-SHA512HALF(key, token).
+	 *
+	 * @param {string} key
+	 * @param {string} hash
+	 */
+
+	function keyHash(key, token) {
+	  var hmac = new sjcl.misc.hmac(key, sjcl.hash.sha512);
+	  return sjcl.codec.hex.fromBits(sjcl.bitArray.bitSlice(hmac.encrypt(token), 0, 256));
+	};
+
+	/****** exposed functions ******/
+
+	/**
+	 * KEY DERIVATION FUNCTION
+	 *
+	 * This service takes care of the key derivation, i.e. converting low-entropy
+	 * secret into higher entropy secret via either computationally expensive
+	 * processes or peer-assisted key derivation (PAKDF).
+	 *
+	 * @param {object}    opts
+	 * @param {string}    purpose - Key type/purpose
+	 * @param {string}    username
+	 * @param {string}    secret - Also known as passphrase/password
+	 * @param {function}  fn
+	 */
+
+	Crypt.derive = function(opts, purpose, username, secret, fn) {
+	  var tokens;
+
+	  if (purpose === 'login') {
+	    tokens = ['id', 'crypt'];
+	  } else {
+	    tokens = ['unlock'];
+	  }
+
+	  var iExponent = new sjcl.bn(String(opts.exponent));
+	  var iModulus  = new sjcl.bn(String(opts.modulus));
+	  var iAlpha    = new sjcl.bn(String(opts.alpha));
+
+	  var publicInfo = [ 'PAKDF_1_0_0', opts.host.length, opts.host, username.length, username, purpose.length, purpose ].join(':') + ':';
+	  var publicSize = Math.ceil(Math.min((7 + iModulus.bitLength()) >>> 3, 256) / 8);
+	  var publicHash = fdh(publicInfo, publicSize);
+	  var publicHex  = sjcl.codec.hex.fromBits(publicHash);
+	  var iPublic    = new sjcl.bn(String(publicHex)).setBitM(0);
+	  var secretInfo = [ publicInfo, secret.length, secret ].join(':') + ':';
+	  var secretSize = (7 + iModulus.bitLength()) >>> 3;
+	  var secretHash = fdh(secretInfo, secretSize);
+	  var secretHex  = sjcl.codec.hex.fromBits(secretHash);
+	  var iSecret    = new sjcl.bn(String(secretHex)).mod(iModulus);
+
+	  if (iSecret.jacobi(iModulus) !== 1) {
+	    iSecret = iSecret.mul(iAlpha).mod(iModulus);
+	  }
+
+	  var iRandom;
+
+	  for (;;) {
+	    iRandom = sjcl.bn.random(iModulus, 0);
+	    if (iRandom.jacobi(iModulus) === 1) {
+	      break;
+	    }
+	  }
+
+	  var iBlind   = iRandom.powermodMontgomery(iPublic.mul(iExponent), iModulus);
+	  var iSignreq = iSecret.mulmod(iBlind, iModulus);
+	  var signreq  = sjcl.codec.hex.fromBits(iSignreq.toBits());
+
+	  request.post(opts.url)
+	    .send({ info: publicInfo, signreq: signreq })
+	    .end(function(err, resp) {
+	      if (err || !resp) {
+	        return fn(new Error('Could not query PAKDF server ' + opts.host));
+	      }
+
+	      var data = resp.body || resp.text ? JSON.parse(resp.text) : {};
+
+	      if (data.result !== 'success') {
+	        return fn(new Error('Could not query PAKDF server '+opts.host));
+	      }
+
+	      var iSignres = new sjcl.bn(String(data.signres));
+	      var iRandomInv = iRandom.inverseMod(iModulus);
+	      var iSigned    = iSignres.mulmod(iRandomInv, iModulus);
+	      var key        = iSigned.toBits();
+	      var result     = { };
+
+	      tokens.forEach(function(token) {
+	        result[token] = keyHash(key, token);
+	      });
+
+	      fn(null, result);
+	    });
+	};
+
+	/**
+	 * Imported from ripple-client
+	 */
+
+
+
+	/**
+	 * Encrypt data
+	 *
+	 * @param {string} key
+	 * @param {string} data
+	 */
+
+	Crypt.encrypt = function(key, data) {
+	  key = sjcl.codec.hex.toBits(key);
+
+	  var opts = extend(true, {}, cryptConfig);
+
+	  var encryptedObj = JSON.parse(sjcl.encrypt(key, data, opts));
+	  var version = [sjcl.bitArray.partial(8, 0)];
+	  var initVector = sjcl.codec.base64.toBits(encryptedObj.iv);
+	  var ciphertext = sjcl.codec.base64.toBits(encryptedObj.ct);
+
+	  var encryptedBits = sjcl.bitArray.concat(version, initVector);
+	  encryptedBits = sjcl.bitArray.concat(encryptedBits, ciphertext);
+
+	  return sjcl.codec.base64.fromBits(encryptedBits);
+	};
+
+	/**
+	 * Decrypt data
+	 *
+	 * @param {string} key
+	 * @param {string} data
+	 */
+
+	Crypt.decrypt = function (key, data) {
+	  
+	  key = sjcl.codec.hex.toBits(key);
+	  var encryptedBits = sjcl.codec.base64.toBits(data);
+
+	  var version = sjcl.bitArray.extract(encryptedBits, 0, 8);
+
+	  if (version !== 0) {
+	    throw new Error('Unsupported encryption version: '+version);
+	  }
+
+	  var encrypted = extend(true, {}, cryptConfig, {
+	    iv: sjcl.codec.base64.fromBits(sjcl.bitArray.bitSlice(encryptedBits, 8, 8+128)),
+	    ct: sjcl.codec.base64.fromBits(sjcl.bitArray.bitSlice(encryptedBits, 8+128))
+	  });
+
+	  return sjcl.decrypt(key, JSON.stringify(encrypted));
+	};
+
+
+	/**
+	 * Validate a ripple address
+	 *
+	 * @param {string} address
+	 */
+
+	Crypt.isValidAddress = function (address) {
+	  return UInt160.is_valid(address);
+	};
+
+	/**
+	 * Create an encryption key
+	 *
+	 * @param {integer} nWords - number of words
+	 */
+
+	Crypt.createSecret = function (nWords) {
+	  return sjcl.codec.hex.fromBits(sjcl.random.randomWords(nWords));
+	};
+
+	/**
+	 * Create a new master key
+	 */
+
+	Crypt.createMaster = function () {
+	  return base.encode_check(33, sjcl.codec.bytes.fromBits(sjcl.random.randomWords(4)));
+	};
+
+
+	/**
+	 * Create a ripple address from a master key
+	 *
+	 * @param {string} masterkey
+	 */
+
+	Crypt.getAddress = function (masterkey) {
+	  return Seed.from_json(masterkey).get_key().get_address().to_json();
+	};
+
+	/**
+	 * Hash data using SHA-512.
+	 *
+	 * @param {string|bitArray} data
+	 * @return {string} Hash of the data
+	 */
+
+	Crypt.hashSha512 = function (data) {
+	  // XXX Should return a UInt512
+	  return sjcl.codec.hex.fromBits(sjcl.hash.sha512.hash(data)); 
+	};
+
+	/**
+	 * Hash data using SHA-512 and return the first 256 bits.
+	 *
+	 * @param {string|bitArray} data
+	 * @return {UInt256} Hash of the data
+	 */
+	Crypt.hashSha512Half = function (data) {
+	  return UInt256.from_hex(Crypt.hashSha512(data).substr(0, 64));
+	};
+
+
+	/**
+	 * Sign a data string with a secret key
+	 *
+	 * @param {string} secret
+	 * @param {string} data
+	 */
+
+	Crypt.signString = function(secret, data) {
+	  var hmac = new sjcl.misc.hmac(sjcl.codec.hex.toBits(secret), sjcl.hash.sha512);
+	  return sjcl.codec.hex.fromBits(hmac.mac(data));
+	};
+
+	/**
+	 * Create an an accout recovery key
+	 *
+	 * @param {string} secret
+	 */
+
+	Crypt.deriveRecoveryEncryptionKeyFromSecret = function(secret) {
+	  var seed = Seed.from_json(secret).to_bits();
+	  var hmac = new sjcl.misc.hmac(seed, sjcl.hash.sha512);
+	  var key  = hmac.mac('ripple/hmac/recovery_encryption_key/v1');
+	  key      = sjcl.bitArray.bitSlice(key, 0, 256);
+	  return sjcl.codec.hex.fromBits(key);
+	};
+
+	/**
+	 * Convert base64 encoded data into base64url encoded data.
+	 *
+	 * @param {String} base64 Data
+	 */
+
+	Crypt.base64ToBase64Url = function(encodedData) {
+	  return encodedData.replace(/\+/g, '-').replace(/\//g, '_').replace(/[=]+$/, '');
+	};
+
+	/**
+	 * Convert base64url encoded data into base64 encoded data.
+	 *
+	 * @param {String} base64 Data
+	 */
+
+	Crypt.base64UrlToBase64 = function(encodedData) {
+	  encodedData = encodedData.replace(/-/g, '+').replace(/_/g, '/');
+
+	  while (encodedData.length % 4) {
+	    encodedData += '=';
+	  }
+
+	  return encodedData;
+	};
+
+	/**
+	 * ripemd160 buffer hash wrapper for bit arrays.
+	 *
+	 * @param {bitArray} bits The bit array to hash
+	 *
+	 * @return {bitArray} THe resulting hash
+	 */
+
+	Crypt.ripemd160 = function(bits) {
+	  var buffer = new Buffer(sjcl.codec.hex.fromBits(bits), 'hex');
+	  var result = ripemd160(buffer);
+	  return sjcl.codec.hex.toBits(result.toString('hex'));
+	};
+
+	exports.Crypt = Crypt;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/**
 	 * Prefix for hashing functions.
 	 *
@@ -10188,7 +10525,7 @@ var stellar =
 
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Convert a JavaScript number to IEEE-754 Double Precision
@@ -10300,7 +10637,7 @@ var stellar =
 	}
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var utils   = __webpack_require__(19);
@@ -10602,7 +10939,7 @@ var stellar =
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var sjcl = __webpack_require__(19).sjcl;
@@ -10611,6 +10948,7 @@ var stellar =
 	var UInt160 = __webpack_require__(8).UInt160;
 	var UInt256 = __webpack_require__(9).UInt256;
 	var Base    = __webpack_require__(7).Base;
+	var Crypt   = __webpack_require__(26).Crypt;
 
 	/**
 	 * Creates an ED25519 key pair for signing.
@@ -10670,7 +11008,7 @@ var stellar =
 	};
 
 	function SHA256_RIPEMD160(bits) {
-	  return sjcl.hash.ripemd160.hash(sjcl.hash.sha256.hash(bits));
+	  return Crypt.ripemd160(sjcl.hash.sha256.hash(bits));
 	}
 
 	KeyPair.prototype.get_address = function() {
@@ -10698,7 +11036,7 @@ var stellar =
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11458,329 +11796,10 @@ var stellar =
 
 
 /***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var sjcl        = __webpack_require__(19).sjcl;
-	var base        = __webpack_require__(7).Base;
-	var Seed        = __webpack_require__(10).Seed;
-	var UInt160     = __webpack_require__(8).UInt160;
-	var UInt256     = __webpack_require__(9).UInt256;
-	var request     = __webpack_require__(49);
-	var querystring = __webpack_require__(50);
-	var extend      = __webpack_require__(42);
-	var parser      = __webpack_require__(41);
-	var Crypt       = { };
-
-	var cryptConfig = {
-	  cipher : 'aes',
-	  mode   : 'ccm',
-	  ts     : 64,   // tag length
-	  ks     : 256,  // key size
-	  iter   : 1000  // iterations (key derivation)
-	};
-
-	/**
-	 * Full domain hash based on SHA512
-	 */
-
-	function fdh(data, bytelen) {
-	  var bitlen = bytelen << 3;
-
-	  if (typeof data === 'string') {
-	    data = sjcl.codec.utf8String.toBits(data);
-	  }
-
-	  // Add hashing rounds until we exceed desired length in bits
-	  var counter = 0, output = [];
-
-	  while (sjcl.bitArray.bitLength(output) < bitlen) {
-	    var hash = sjcl.hash.sha512.hash(sjcl.bitArray.concat([counter], data));
-	    output = sjcl.bitArray.concat(output, hash);
-	    counter++;
-	  }
-
-	  // Truncate to desired length
-	  output = sjcl.bitArray.clamp(output, bitlen);
-
-	  return output;
-	};
-
-	/**
-	 * This is a function to derive different hashes from the same key. 
-	 * Each hash is derived as HMAC-SHA512HALF(key, token).
-	 *
-	 * @param {string} key
-	 * @param {string} hash
-	 */
-
-	function keyHash(key, token) {
-	  var hmac = new sjcl.misc.hmac(key, sjcl.hash.sha512);
-	  return sjcl.codec.hex.fromBits(sjcl.bitArray.bitSlice(hmac.encrypt(token), 0, 256));
-	};
-
-	/****** exposed functions ******/
-
-	/**
-	 * KEY DERIVATION FUNCTION
-	 *
-	 * This service takes care of the key derivation, i.e. converting low-entropy
-	 * secret into higher entropy secret via either computationally expensive
-	 * processes or peer-assisted key derivation (PAKDF).
-	 *
-	 * @param {object}    opts
-	 * @param {string}    purpose - Key type/purpose
-	 * @param {string}    username
-	 * @param {string}    secret - Also known as passphrase/password
-	 * @param {function}  fn
-	 */
-
-	Crypt.derive = function(opts, purpose, username, secret, fn) {
-	  var tokens;
-
-	  if (purpose === 'login') {
-	    tokens = ['id', 'crypt'];
-	  } else {
-	    tokens = ['unlock'];
-	  }
-
-	  var iExponent = new sjcl.bn(String(opts.exponent));
-	  var iModulus  = new sjcl.bn(String(opts.modulus));
-	  var iAlpha    = new sjcl.bn(String(opts.alpha));
-
-	  var publicInfo = [ 'PAKDF_1_0_0', opts.host.length, opts.host, username.length, username, purpose.length, purpose ].join(':') + ':';
-	  var publicSize = Math.ceil(Math.min((7 + iModulus.bitLength()) >>> 3, 256) / 8);
-	  var publicHash = fdh(publicInfo, publicSize);
-	  var publicHex  = sjcl.codec.hex.fromBits(publicHash);
-	  var iPublic    = new sjcl.bn(String(publicHex)).setBitM(0);
-	  var secretInfo = [ publicInfo, secret.length, secret ].join(':') + ':';
-	  var secretSize = (7 + iModulus.bitLength()) >>> 3;
-	  var secretHash = fdh(secretInfo, secretSize);
-	  var secretHex  = sjcl.codec.hex.fromBits(secretHash);
-	  var iSecret    = new sjcl.bn(String(secretHex)).mod(iModulus);
-
-	  if (iSecret.jacobi(iModulus) !== 1) {
-	    iSecret = iSecret.mul(iAlpha).mod(iModulus);
-	  }
-
-	  var iRandom;
-
-	  for (;;) {
-	    iRandom = sjcl.bn.random(iModulus, 0);
-	    if (iRandom.jacobi(iModulus) === 1) {
-	      break;
-	    }
-	  }
-
-	  var iBlind   = iRandom.powermodMontgomery(iPublic.mul(iExponent), iModulus);
-	  var iSignreq = iSecret.mulmod(iBlind, iModulus);
-	  var signreq  = sjcl.codec.hex.fromBits(iSignreq.toBits());
-
-	  request.post(opts.url)
-	    .send({ info: publicInfo, signreq: signreq })
-	    .end(function(err, resp) {
-	      if (err || !resp) {
-	        return fn(new Error('Could not query PAKDF server ' + opts.host));
-	      }
-
-	      var data = resp.body || resp.text ? JSON.parse(resp.text) : {};
-
-	      if (data.result !== 'success') {
-	        return fn(new Error('Could not query PAKDF server '+opts.host));
-	      }
-
-	      var iSignres = new sjcl.bn(String(data.signres));
-	      var iRandomInv = iRandom.inverseMod(iModulus);
-	      var iSigned    = iSignres.mulmod(iRandomInv, iModulus);
-	      var key        = iSigned.toBits();
-	      var result     = { };
-
-	      tokens.forEach(function(token) {
-	        result[token] = keyHash(key, token);
-	      });
-
-	      fn(null, result);
-	    });
-	};
-
-	/**
-	 * Imported from ripple-client
-	 */
-
-
-
-	/**
-	 * Encrypt data
-	 *
-	 * @param {string} key
-	 * @param {string} data
-	 */
-
-	Crypt.encrypt = function(key, data) {
-	  key = sjcl.codec.hex.toBits(key);
-
-	  var opts = extend(true, {}, cryptConfig);
-
-	  var encryptedObj = JSON.parse(sjcl.encrypt(key, data, opts));
-	  var version = [sjcl.bitArray.partial(8, 0)];
-	  var initVector = sjcl.codec.base64.toBits(encryptedObj.iv);
-	  var ciphertext = sjcl.codec.base64.toBits(encryptedObj.ct);
-
-	  var encryptedBits = sjcl.bitArray.concat(version, initVector);
-	  encryptedBits = sjcl.bitArray.concat(encryptedBits, ciphertext);
-
-	  return sjcl.codec.base64.fromBits(encryptedBits);
-	};
-
-	/**
-	 * Decrypt data
-	 *
-	 * @param {string} key
-	 * @param {string} data
-	 */
-
-	Crypt.decrypt = function (key, data) {
-	  
-	  key = sjcl.codec.hex.toBits(key);
-	  var encryptedBits = sjcl.codec.base64.toBits(data);
-
-	  var version = sjcl.bitArray.extract(encryptedBits, 0, 8);
-
-	  if (version !== 0) {
-	    throw new Error('Unsupported encryption version: '+version);
-	  }
-
-	  var encrypted = extend(true, {}, cryptConfig, {
-	    iv: sjcl.codec.base64.fromBits(sjcl.bitArray.bitSlice(encryptedBits, 8, 8+128)),
-	    ct: sjcl.codec.base64.fromBits(sjcl.bitArray.bitSlice(encryptedBits, 8+128))
-	  });
-
-	  return sjcl.decrypt(key, JSON.stringify(encrypted));
-	};
-
-
-	/**
-	 * Validate a ripple address
-	 *
-	 * @param {string} address
-	 */
-
-	Crypt.isValidAddress = function (address) {
-	  return UInt160.is_valid(address);
-	};
-
-	/**
-	 * Create an encryption key
-	 *
-	 * @param {integer} nWords - number of words
-	 */
-
-	Crypt.createSecret = function (nWords) {
-	  return sjcl.codec.hex.fromBits(sjcl.random.randomWords(nWords));
-	};
-
-	/**
-	 * Create a new master key
-	 */
-
-	Crypt.createMaster = function () {
-	  return base.encode_check(33, sjcl.codec.bytes.fromBits(sjcl.random.randomWords(4)));
-	};
-
-
-	/**
-	 * Create a ripple address from a master key
-	 *
-	 * @param {string} masterkey
-	 */
-
-	Crypt.getAddress = function (masterkey) {
-	  return Seed.from_json(masterkey).get_key().get_address().to_json();
-	};
-
-	/**
-	 * Hash data using SHA-512.
-	 *
-	 * @param {string|bitArray} data
-	 * @return {string} Hash of the data
-	 */
-
-	Crypt.hashSha512 = function (data) {
-	  // XXX Should return a UInt512
-	  return sjcl.codec.hex.fromBits(sjcl.hash.sha512.hash(data)); 
-	};
-
-	/**
-	 * Hash data using SHA-512 and return the first 256 bits.
-	 *
-	 * @param {string|bitArray} data
-	 * @return {UInt256} Hash of the data
-	 */
-	Crypt.hashSha512Half = function (data) {
-	  return UInt256.from_hex(Crypt.hashSha512(data).substr(0, 64));
-	};
-
-
-	/**
-	 * Sign a data string with a secret key
-	 *
-	 * @param {string} secret
-	 * @param {string} data
-	 */
-
-	Crypt.signString = function(secret, data) {
-	  var hmac = new sjcl.misc.hmac(sjcl.codec.hex.toBits(secret), sjcl.hash.sha512);
-	  return sjcl.codec.hex.fromBits(hmac.mac(data));
-	};
-
-	/**
-	 * Create an an accout recovery key
-	 *
-	 * @param {string} secret
-	 */
-
-	Crypt.deriveRecoveryEncryptionKeyFromSecret = function(secret) {
-	  var seed = Seed.from_json(secret).to_bits();
-	  var hmac = new sjcl.misc.hmac(seed, sjcl.hash.sha512);
-	  var key  = hmac.mac('ripple/hmac/recovery_encryption_key/v1');
-	  key      = sjcl.bitArray.bitSlice(key, 0, 256);
-	  return sjcl.codec.hex.fromBits(key);
-	};
-
-	/**
-	 * Convert base64 encoded data into base64url encoded data.
-	 *
-	 * @param {String} base64 Data
-	 */
-
-	Crypt.base64ToBase64Url = function(encodedData) {
-	  return encodedData.replace(/\+/g, '-').replace(/\//g, '_').replace(/[=]+$/, '');
-	};
-
-	/**
-	 * Convert base64url encoded data into base64 encoded data.
-	 *
-	 * @param {String} base64 Data
-	 */
-
-	Crypt.base64UrlToBase64 = function(encodedData) {
-	  encodedData = encodedData.replace(/-/g, '+').replace(/_/g, '/');
-
-	  while (encodedData.length % 4) {
-	    encodedData += '=';
-	  }
-
-	  return encodedData;
-	};
-
-	exports.Crypt = Crypt;
-
-
-/***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var crypt   = __webpack_require__(31).Crypt;
+	var crypt   = __webpack_require__(26).Crypt;
 	var SignedRequest = __webpack_require__(45).SignedRequest;
 	var request  = __webpack_require__(49);
 	var extend   = __webpack_require__(42);
@@ -15037,7 +15056,7 @@ var stellar =
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(62);
+	exports.inherits = __webpack_require__(63);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -15055,7 +15074,7 @@ var stellar =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(57)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(58)))
 
 /***/ },
 /* 37 */
@@ -15549,8 +15568,8 @@ var stellar =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(65)
-	var ieee754 = __webpack_require__(60)
+	var base64 = __webpack_require__(66)
+	var ieee754 = __webpack_require__(61)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = Buffer
@@ -16744,7 +16763,7 @@ var stellar =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var punycode = __webpack_require__(63);
+	var punycode = __webpack_require__(64);
 
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -16812,7 +16831,7 @@ var stellar =
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(64);
+	    querystring = __webpack_require__(65);
 
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && typeof(url) === 'object' && url.href) return url;
@@ -17551,7 +17570,7 @@ var stellar =
 
 	var utils  = __webpack_require__(19);
 	var extend = __webpack_require__(42);
-	var UInt   = __webpack_require__(28).UInt;
+	var UInt   = __webpack_require__(29).UInt;
 
 	//
 	// UInt128 support
@@ -17578,7 +17597,7 @@ var stellar =
 /* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Crypt = __webpack_require__(31).Crypt;
+	var Crypt = __webpack_require__(26).Crypt;
 	var Message = __webpack_require__(14).Message;
 	var parser  = __webpack_require__(41);
 	var querystring = __webpack_require__(50);
@@ -19255,7 +19274,7 @@ var stellar =
 
 	}());
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(57)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(58)))
 
 /***/ },
 /* 49 */
@@ -19265,8 +19284,8 @@ var stellar =
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(66);
-	var reduce = __webpack_require__(67);
+	var Emitter = __webpack_require__(67);
+	var reduce = __webpack_require__(68);
 
 	/**
 	 * Root reference for iframes.
@@ -20318,8 +20337,8 @@ var stellar =
 
 	'use strict';
 
-	exports.decode = exports.parse = __webpack_require__(58);
-	exports.encode = exports.stringify = __webpack_require__(59);
+	exports.decode = exports.parse = __webpack_require__(59);
+	exports.encode = exports.stringify = __webpack_require__(60);
 
 
 /***/ },
@@ -20366,10 +20385,10 @@ var stellar =
 /* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(68)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(69)
 
-	var md5 = toConstructor(__webpack_require__(61))
-	var rmd160 = toConstructor(__webpack_require__(70))
+	var md5 = toConstructor(__webpack_require__(62))
+	var rmd160 = toConstructor(__webpack_require__(71))
 
 	function toConstructor (fn) {
 	  return function () {
@@ -21748,6 +21767,218 @@ var stellar =
 /* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(Buffer) {
+	module.exports = ripemd160
+
+
+
+	/*
+	CryptoJS v3.1.2
+	code.google.com/p/crypto-js
+	(c) 2009-2013 by Jeff Mott. All rights reserved.
+	code.google.com/p/crypto-js/wiki/License
+	*/
+	/** @preserve
+	(c) 2012 by Cédric Mesnil. All rights reserved.
+
+	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+	    - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	    - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	*/
+
+	// Constants table
+	var zl = [
+	    0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+	    7,  4, 13,  1, 10,  6, 15,  3, 12,  0,  9,  5,  2, 14, 11,  8,
+	    3, 10, 14,  4,  9, 15,  8,  1,  2,  7,  0,  6, 13, 11,  5, 12,
+	    1,  9, 11, 10,  0,  8, 12,  4, 13,  3,  7, 15, 14,  5,  6,  2,
+	    4,  0,  5,  9,  7, 12,  2, 10, 14,  1,  3,  8, 11,  6, 15, 13];
+	var zr = [
+	    5, 14,  7,  0,  9,  2, 11,  4, 13,  6, 15,  8,  1, 10,  3, 12,
+	    6, 11,  3,  7,  0, 13,  5, 10, 14, 15,  8, 12,  4,  9,  1,  2,
+	    15,  5,  1,  3,  7, 14,  6,  9, 11,  8, 12,  2, 10,  0,  4, 13,
+	    8,  6,  4,  1,  3, 11, 15,  0,  5, 12,  2, 13,  9,  7, 10, 14,
+	    12, 15, 10,  4,  1,  5,  8,  7,  6,  2, 13, 14,  0,  3,  9, 11];
+	var sl = [
+	     11, 14, 15, 12,  5,  8,  7,  9, 11, 13, 14, 15,  6,  7,  9,  8,
+	    7, 6,   8, 13, 11,  9,  7, 15,  7, 12, 15,  9, 11,  7, 13, 12,
+	    11, 13,  6,  7, 14,  9, 13, 15, 14,  8, 13,  6,  5, 12,  7,  5,
+	      11, 12, 14, 15, 14, 15,  9,  8,  9, 14,  5,  6,  8,  6,  5, 12,
+	    9, 15,  5, 11,  6,  8, 13, 12,  5, 12, 13, 14, 11,  8,  5,  6 ];
+	var sr = [
+	    8,  9,  9, 11, 13, 15, 15,  5,  7,  7,  8, 11, 14, 14, 12,  6,
+	    9, 13, 15,  7, 12,  8,  9, 11,  7,  7, 12,  7,  6, 15, 13, 11,
+	    9,  7, 15, 11,  8,  6,  6, 14, 12, 13,  5, 14, 13, 13,  7,  5,
+	    15,  5,  8, 11, 14, 14,  6, 14,  6,  9, 12,  9, 12,  5, 15,  8,
+	    8,  5, 12,  9, 12,  5, 14,  6,  8, 13,  6,  5, 15, 13, 11, 11 ];
+
+	var hl =  [ 0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E];
+	var hr =  [ 0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000];
+
+	var bytesToWords = function (bytes) {
+	  var words = [];
+	  for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
+	    words[b >>> 5] |= bytes[i] << (24 - b % 32);
+	  }
+	  return words;
+	};
+
+	var wordsToBytes = function (words) {
+	  var bytes = [];
+	  for (var b = 0; b < words.length * 32; b += 8) {
+	    bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+	  }
+	  return bytes;
+	};
+
+	var processBlock = function (H, M, offset) {
+
+	  // Swap endian
+	  for (var i = 0; i < 16; i++) {
+	    var offset_i = offset + i;
+	    var M_offset_i = M[offset_i];
+
+	    // Swap
+	    M[offset_i] = (
+	        (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
+	        (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
+	    );
+	  }
+
+	  // Working variables
+	  var al, bl, cl, dl, el;
+	  var ar, br, cr, dr, er;
+
+	  ar = al = H[0];
+	  br = bl = H[1];
+	  cr = cl = H[2];
+	  dr = dl = H[3];
+	  er = el = H[4];
+	  // Computation
+	  var t;
+	  for (var i = 0; i < 80; i += 1) {
+	    t = (al +  M[offset+zl[i]])|0;
+	    if (i<16){
+	        t +=  f1(bl,cl,dl) + hl[0];
+	    } else if (i<32) {
+	        t +=  f2(bl,cl,dl) + hl[1];
+	    } else if (i<48) {
+	        t +=  f3(bl,cl,dl) + hl[2];
+	    } else if (i<64) {
+	        t +=  f4(bl,cl,dl) + hl[3];
+	    } else {// if (i<80) {
+	        t +=  f5(bl,cl,dl) + hl[4];
+	    }
+	    t = t|0;
+	    t =  rotl(t,sl[i]);
+	    t = (t+el)|0;
+	    al = el;
+	    el = dl;
+	    dl = rotl(cl, 10);
+	    cl = bl;
+	    bl = t;
+
+	    t = (ar + M[offset+zr[i]])|0;
+	    if (i<16){
+	        t +=  f5(br,cr,dr) + hr[0];
+	    } else if (i<32) {
+	        t +=  f4(br,cr,dr) + hr[1];
+	    } else if (i<48) {
+	        t +=  f3(br,cr,dr) + hr[2];
+	    } else if (i<64) {
+	        t +=  f2(br,cr,dr) + hr[3];
+	    } else {// if (i<80) {
+	        t +=  f1(br,cr,dr) + hr[4];
+	    }
+	    t = t|0;
+	    t =  rotl(t,sr[i]) ;
+	    t = (t+er)|0;
+	    ar = er;
+	    er = dr;
+	    dr = rotl(cr, 10);
+	    cr = br;
+	    br = t;
+	  }
+	  // Intermediate hash value
+	  t    = (H[1] + cl + dr)|0;
+	  H[1] = (H[2] + dl + er)|0;
+	  H[2] = (H[3] + el + ar)|0;
+	  H[3] = (H[4] + al + br)|0;
+	  H[4] = (H[0] + bl + cr)|0;
+	  H[0] =  t;
+	};
+
+	function f1(x, y, z) {
+	  return ((x) ^ (y) ^ (z));
+	}
+
+	function f2(x, y, z) {
+	  return (((x)&(y)) | ((~x)&(z)));
+	}
+
+	function f3(x, y, z) {
+	  return (((x) | (~(y))) ^ (z));
+	}
+
+	function f4(x, y, z) {
+	  return (((x) & (z)) | ((y)&(~(z))));
+	}
+
+	function f5(x, y, z) {
+	  return ((x) ^ ((y) |(~(z))));
+	}
+
+	function rotl(x,n) {
+	  return (x<<n) | (x>>>(32-n));
+	}
+
+	function ripemd160(message) {
+	  var H = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
+
+	  if (typeof message == 'string')
+	    message = new Buffer(message, 'utf8');
+
+	  var m = bytesToWords(message);
+
+	  var nBitsLeft = message.length * 8;
+	  var nBitsTotal = message.length * 8;
+
+	  // Add padding
+	  m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+	  m[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+	      (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
+	      (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
+	  );
+
+	  for (var i=0 ; i<m.length; i += 16) {
+	    processBlock(H, m, i);
+	  }
+
+	  // Swap endian
+	  for (var i = 0; i < 5; i++) {
+	      // Shortcut
+	    var H_i = H[i];
+
+	    // Swap
+	    H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
+	          (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
+	  }
+
+	  var digestbytes = wordsToBytes(H);
+	  return new Buffer(digestbytes);
+	}
+
+
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
+
+/***/ },
+/* 58 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// shim for using process in browser
 
 	var process = module.exports = {};
@@ -21811,7 +22042,7 @@ var stellar =
 
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -21901,7 +22132,7 @@ var stellar =
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -21992,7 +22223,7 @@ var stellar =
 
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -22082,7 +22313,7 @@ var stellar =
 
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22094,7 +22325,7 @@ var stellar =
 	 * See http://pajhome.org.uk/crypt/md5 for more info.
 	 */
 
-	var helpers = __webpack_require__(69);
+	var helpers = __webpack_require__(70);
 
 	/*
 	 * Calculate the MD5 of an array of little-endian words, and a bit length
@@ -22243,7 +22474,7 @@ var stellar =
 
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -22272,7 +22503,7 @@ var stellar =
 
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(module) {/*! http://mths.be/punycode by @mathias */
@@ -22286,7 +22517,7 @@ var stellar =
 		var punycode,
 
 		/** Detect free variables `define`, `exports`, `module` and `require` */
-		freeDefine = __webpack_require__(74),
+		freeDefine = __webpack_require__(75),
 		freeExports = typeof exports == 'object' && exports,
 		freeModule = typeof module == 'object' && module,
 		freeRequire = typeof require == 'function' && require,
@@ -22777,7 +23008,7 @@ var stellar =
 					punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
 				}
 			}
-		} else if (__webpack_require__(74)) {
+		} else if (__webpack_require__(75)) {
 			// via curl.js or RequireJS
 			!(__WEBPACK_AMD_DEFINE_FACTORY__ = (punycode), (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_RESULT__ = __WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : module.exports = __WEBPACK_AMD_DEFINE_FACTORY__));
 		} else {
@@ -22786,10 +23017,10 @@ var stellar =
 		}
 
 	}(this));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(75)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(76)(module)))
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;// Copyright Joyent, Inc. and other Node contributors.
@@ -22903,7 +23134,7 @@ var stellar =
 
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -23029,7 +23260,7 @@ var stellar =
 
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -23199,7 +23430,7 @@ var stellar =
 
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -23228,7 +23459,7 @@ var stellar =
 	};
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -23237,16 +23468,16 @@ var stellar =
 	  return new Alg()
 	}
 
-	var Buffer = __webpack_require__(76).Buffer
-	var Hash   = __webpack_require__(71)(Buffer)
+	var Buffer = __webpack_require__(77).Buffer
+	var Hash   = __webpack_require__(72)(Buffer)
 
 	exports.sha =
-	exports.sha1 = __webpack_require__(72)(Buffer, Hash)
-	exports.sha256 = __webpack_require__(73)(Buffer, Hash)
+	exports.sha1 = __webpack_require__(73)(Buffer, Hash)
+	exports.sha256 = __webpack_require__(74)(Buffer, Hash)
 
 
 /***/ },
-/* 69 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var intSize = 4;
@@ -23287,7 +23518,7 @@ var stellar =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
 
 /***/ },
-/* 70 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {
@@ -23499,10 +23730,10 @@ var stellar =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
 
 /***/ },
-/* 71 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var u = __webpack_require__(77)
+	var u = __webpack_require__(78)
 	var write = u.write
 	var fill = u.zeroFill
 
@@ -23603,7 +23834,7 @@ var stellar =
 
 
 /***/ },
-/* 72 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -23768,7 +23999,7 @@ var stellar =
 
 
 /***/ },
-/* 73 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -23783,7 +24014,7 @@ var stellar =
 	var inherits = __webpack_require__(36).inherits
 	var BE       = false
 	var LE       = true
-	var u        = __webpack_require__(77)
+	var u        = __webpack_require__(78)
 
 	module.exports = function (Buffer, Hash) {
 
@@ -23937,14 +24168,14 @@ var stellar =
 
 
 /***/ },
-/* 74 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 75 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -23960,7 +24191,7 @@ var stellar =
 
 
 /***/ },
-/* 76 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -23970,8 +24201,8 @@ var stellar =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(79)
-	var ieee754 = __webpack_require__(78)
+	var base64 = __webpack_require__(80)
+	var ieee754 = __webpack_require__(79)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = Buffer
@@ -25123,7 +25354,7 @@ var stellar =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
 
 /***/ },
-/* 77 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.write = write
@@ -25165,7 +25396,7 @@ var stellar =
 
 
 /***/ },
-/* 78 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -25255,7 +25486,7 @@ var stellar =
 
 
 /***/ },
-/* 79 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
