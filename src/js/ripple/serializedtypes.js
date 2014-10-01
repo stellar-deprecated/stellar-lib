@@ -625,7 +625,12 @@ function serialize(so, field_name, value) {
   // Get the serializer class (ST...) for a field based on the type bits.
   var serialized_object_type = exports[binformat.types[type_bits]];
   //do something with val[keys] and val[keys[i]];
-  serialized_object_type.serialize(so, value);
+  try {
+    serialized_object_type.serialize(so, value);
+  } catch (e) {
+    throw new Error("Error (" + e.message + ") serializing field_name: " +
+      field_name + " with value: " + value + ".)");
+  }
 }
 
 //Take the serialized object, figure out what type/field it is, and return the parsing of that.
