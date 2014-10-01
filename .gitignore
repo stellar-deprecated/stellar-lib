@@ -17,7 +17,6 @@
 
 # Ignore object files.
 *.o
-build/*
 tags
 bin/rippled
 Debug/*.*

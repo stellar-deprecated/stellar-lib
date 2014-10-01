@@ -22,15 +22,15 @@ gulp.task('build', [ ], function(callback) {
     output: {
       library: 'stellar',
       path: './build/',
-      filename: [ 'stellar-', '.js' ].join(pkg.version)
+      filename: 'stellar-lib.js'
     },
   }, callback);
 });
 
 gulp.task('build-min', [ 'build' ], function(callback) {
-  return gulp.src([ './build/ripple-', '.js' ].join(pkg.version))
+  return gulp.src('./build/stellar-lib.js')
   .pipe(uglify())
-  .pipe(rename([ 'stellar-', '-min.js' ].join(pkg.version)))
+  .pipe(rename('stellar-lib-min.js'))
   .pipe(gulp.dest('./build/'));
 });
 
@@ -41,7 +41,7 @@ gulp.task('build-debug', [ ], function(callback) {
     output: {
       library: 'stellar',
       path: './build/',
-      filename: [ 'stellar-', '-debug.js' ].join(pkg.version)
+      filename: 'stellar-lib-debug.js'
     },
     debug: true,
     devtool: 'eval'

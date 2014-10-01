@@ -1,6 +1,6 @@
 {
   "name": "stellar-lib",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Stellar JavaScript client library",
   "files": [
     "src/js/*",
@@ -39,7 +39,7 @@
     "scripts": {
         "build": "node_modules/.bin/gulp",
         "pretest": "node_modules/.bin/gulp build",
-        "test": "./node_modules/.bin/istanbul test -x build/sjcl.js -x src/js/jsbn/* ./node_modules/.bin/_mocha -- --reporter spec test/*-test.js",
+        "test": "./node_modules/.bin/istanbul test -x src/js/jsbn/* ./node_modules/.bin/_mocha -- --reporter spec test/*-test.js",
         "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
     },
   "repository": {
