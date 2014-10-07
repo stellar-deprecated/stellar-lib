@@ -1,4 +1,5 @@
 var util         = require('util');
+var rippleUtil   = require('./utils');
 var url          = require('url');
 var EventEmitter = require('events').EventEmitter;
 var Amount       = require('./amount').Amount;
@@ -403,7 +404,7 @@ Server.prototype._retryConnect = function() {
 
   this._retry += 1;
 
-  var retryTimeout = util.expBackoff(this._retry, 100, 1000);
+  var retryTimeout = rippleUtil.expBackoff(this._retry, 100, 1000);
 
   function connectionRetry() {
     if (self._shouldConnect) {
