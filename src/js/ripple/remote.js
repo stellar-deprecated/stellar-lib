@@ -483,6 +483,14 @@ Remote.prototype.addServer = function(opts) {
 
   server.on('disconnect', serverDisconnect);
 
+  server.on('connecting', function() {
+    self.emit('connecting');
+  });
+
+  server.on('reconnecting', function(timeout) {
+    self.emit('reconnecting', timeout);
+  });
+
   this._servers.push(server);
 
   return this;
@@ -549,6 +557,20 @@ Remote.prototype.disconnect = function(callback) {
   this._set_state('offline');
 
   return this;
+};
+
+/**
+ * Reconnect to the Stellar network immediately.
+ *
+ * @api public
+ */
+
+Remote.prototype.forceReconnect = function() {
+  this._servers.forEach(function(server) {
+    if(!server.connected()) {
+      server.forceRetryConnect();
+    }
+  });
 };
 
 /**

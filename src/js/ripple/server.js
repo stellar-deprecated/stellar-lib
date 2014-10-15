@@ -394,6 +394,16 @@ Server.prototype.connect = function() {
 };
 
 /**
+ * Return the status of the server's connection
+ *
+ * @api public
+ */
+
+Server.prototype.connected = function() {
+  return this._connected;
+};
+
+/**
  * Retry connection to rippled server
  *
  * @api private
@@ -416,6 +426,20 @@ Server.prototype._retryConnect = function() {
   };
 
   this._retryTimer = setTimeout(connectionRetry, retryTimeout);
+
+  this.emit('reconnecting', retryTimeout);
+};
+
+/**
+ * Reset the rerty counter and try reconnecting immediately
+ *
+ * @api public
+ */
+
+Server.prototype.forceRetryConnect = function() {
+  this._retry = 0;
+  clearTimeout(this._retryTimer);
+  this.connect();
 };
 
 /**
