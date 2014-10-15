@@ -1,6 +1,6 @@
 {
   "name": "stellar-lib",
-  "version": "0.9.6",
+  "version": "0.10.0",
   "homepage": "https://github.com/stellar/stellar-lib",
   "description": "Stellar JavaScript client library",
   "main": "build/stellar-lib.js",
