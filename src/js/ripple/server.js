@@ -431,12 +431,12 @@ Server.prototype._retryConnect = function() {
 };
 
 /**
- * Reset the rerty counter and try reconnecting immediately
+ * Reset the retry counter and try reconnecting immediately
  *
  * @api public
  */
 
-Server.prototype.forceRetryConnect = function() {
+Server.prototype.forceReconnect = function() {
   this._retry = 0;
   clearTimeout(this._retryTimer);
   this.connect();

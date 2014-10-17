@@ -568,7 +568,7 @@ Remote.prototype.disconnect = function(callback) {
 Remote.prototype.forceReconnect = function() {
   this._servers.forEach(function(server) {
     if(!server.connected()) {
-      server.forceRetryConnect();
+      server.forceReconnect();
     }
   });
 };
