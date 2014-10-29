@@ -211,6 +211,7 @@ Server.prototype._checkActivity = function() {
   var delta = (Date.now() - this._lastLedgerClose);
 
   if (delta > (1000 * 25)) {
+    this._lastLedgerClose = NaN;
     this.reconnect();
   }
 };
