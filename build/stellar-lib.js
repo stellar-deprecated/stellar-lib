@@ -4467,7 +4467,7 @@ var stellar =
 	var Seed             = __webpack_require__(10).Seed;
 	var SerializedObject = __webpack_require__(12).SerializedObject;
 	var RippleError      = __webpack_require__(13).RippleError;
-	var hashprefixes     = __webpack_require__(28);
+	var hashprefixes     = __webpack_require__(27);
 	var config           = __webpack_require__(21);
 
 	function Transaction(remote) {
@@ -5378,7 +5378,7 @@ var stellar =
 	var extend    = __webpack_require__(42);
 	var UInt160 = __webpack_require__(8).UInt160;
 	var utils = __webpack_require__(19);
-	var Float = __webpack_require__(27).Float;
+	var Float = __webpack_require__(28).Float;
 
 	//
 	// Currency support
@@ -8300,7 +8300,7 @@ var stellar =
 	// Going up three levels is needed to escape the src-cov folder used for the
 	// test coverage stuff.
 	exports.sjcl = __webpack_require__(46);
-	exports.jsbn = __webpack_require__(34);
+	exports.jsbn = __webpack_require__(33);
 
 	// vim:sw=2:sts=2:ts=8:et
 
@@ -8467,7 +8467,7 @@ var stellar =
 	Server.websocketConstructor = function() {
 	  // We require this late, because websocket shims may be loaded after
 	  // ripple-lib in the browser
-	  return __webpack_require__(33);
+	  return __webpack_require__(34);
 	};
 
 	/**
@@ -8521,7 +8521,8 @@ var stellar =
 
 	  var delta = (Date.now() - this._lastLedgerClose);
 
-	  if (delta > (1000 * 25)) {
+	  if (delta > (1000 * 60)) {
+	    this._lastLedgerClose = NaN;
 	    this.reconnect();
 	  }
 	};
@@ -10544,6 +10545,37 @@ var stellar =
 /* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Prefix for hashing functions.
+	 *
+	 * These prefixes are inserted before the source material used to
+	 * generate various hashes. This is done to put each hash in its own
+	 * "space." This way, two different types of objects with the
+	 * same binary data will produce different hashes.
+	 *
+	 * Each prefix is a 4-byte value with the last byte set to zero
+	 * and the first three bytes formed from the ASCII equivalent of
+	 * some arbitrary string. For example "TXN".
+	 */
+
+	// transaction plus signature to give transaction ID
+	exports.HASH_TX_ID           = 0x54584E00; // 'TXN'
+	// transaction plus metadata
+	exports.HASH_TX_NODE         = 0x534E4400; // 'TND'
+	// inner node in tree
+	exports.HASH_INNER_NODE      = 0x4D494E00; // 'MIN'
+	// leaf node in tree
+	exports.HASH_LEAF_NODE       = 0x4D4C4E00; // 'MLN'
+	// inner transaction to sign
+	exports.HASH_TX_SIGN         = 0x53545800; // 'STX'
+	// inner transaction to sign (TESTNET)
+	exports.HASH_TX_SIGN_TESTNET = 0x73747800; // 'stx'
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// Convert a JavaScript number to IEEE-754 Double Precision
 	// value represented as an array of 8 bytes (octets)
 	//
@@ -10651,37 +10683,6 @@ var stellar =
 	    .join('')
 	    .replace(/(.)(.{11})(.{52})/, "$1 $2 $3")
 	}
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Prefix for hashing functions.
-	 *
-	 * These prefixes are inserted before the source material used to
-	 * generate various hashes. This is done to put each hash in its own
-	 * "space." This way, two different types of objects with the
-	 * same binary data will produce different hashes.
-	 *
-	 * Each prefix is a 4-byte value with the last byte set to zero
-	 * and the first three bytes formed from the ASCII equivalent of
-	 * some arbitrary string. For example "TXN".
-	 */
-
-	// transaction plus signature to give transaction ID
-	exports.HASH_TX_ID           = 0x54584E00; // 'TXN'
-	// transaction plus metadata
-	exports.HASH_TX_NODE         = 0x534E4400; // 'TND'
-	// inner node in tree
-	exports.HASH_INNER_NODE      = 0x4D494E00; // 'MIN'
-	// leaf node in tree
-	exports.HASH_LEAF_NODE       = 0x4D4C4E00; // 'MLN'
-	// inner transaction to sign
-	exports.HASH_TX_SIGN         = 0x53545800; // 'STX'
-	// inner transaction to sign (TESTNET)
-	exports.HASH_TX_SIGN_TESTNET = 0x73747800; // 'stx'
-
 
 /***/ },
 /* 29 */
@@ -12965,52 +12966,6 @@ var stellar =
 /* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// If there is no WebSocket, try MozWebSocket (support for some old browsers)
-	try {
-	  module.exports = WebSocket;
-	} catch(err) {
-	  module.exports = MozWebSocket;
-	}
-
-	// Some versions of Safari Mac 5 and Safari iOS 4 seem to support websockets,
-	// but can't communicate with websocketpp, which is what rippled uses.
-	//
-	// Note that we check for both the WebSocket protocol version the browser seems
-	// to implement as well as the user agent etc. The reason is that we want to err
-	// on the side of trying to connect since we don't want to accidentally disable
-	// a browser that would normally work fine.
-	var match, versionRegexp = /Version\/(\d+)\.(\d+)(?:\.(\d+))?.*Safari\//;
-	if (
-	  // Is browser
-	  "object" === typeof navigator &&
-	  "string" === typeof navigator.userAgent &&
-	  // Is Safari
-	  (match = versionRegexp.exec(navigator.userAgent)) &&
-	  // And uses the old websocket protocol
-	  2 === window.WebSocket.CLOSED
-	) {
-	  // Is iOS
-	  if (/iP(hone|od|ad)/.test(navigator.platform)) {
-	    // Below version 5 is broken
-	    if (+match[1] < 5) {
-	      module.exports = void(0);
-	    }
-	  // Is any other Mac OS
-	  // If you want to refactor this code, be careful, iOS user agents contain the
-	  // string "like Mac OS X".
-	  } else if (navigator.appVersion.indexOf("Mac") !== -1) {
-	    // Below version 6 is broken
-	    if (+match[1] < 6) {
-	      module.exports = void(0);
-	    }
-	  }
-	}
-
-
-/***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// Copyright (c) 2005  Tom Wu
 	// All Rights Reserved.
 	// See "LICENSE" for details.
@@ -14221,6 +14176,52 @@ var stellar =
 	BigInteger.valueOf = nbi;
 
 	exports.BigInteger = BigInteger;
+
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// If there is no WebSocket, try MozWebSocket (support for some old browsers)
+	try {
+	  module.exports = WebSocket;
+	} catch(err) {
+	  module.exports = MozWebSocket;
+	}
+
+	// Some versions of Safari Mac 5 and Safari iOS 4 seem to support websockets,
+	// but can't communicate with websocketpp, which is what rippled uses.
+	//
+	// Note that we check for both the WebSocket protocol version the browser seems
+	// to implement as well as the user agent etc. The reason is that we want to err
+	// on the side of trying to connect since we don't want to accidentally disable
+	// a browser that would normally work fine.
+	var match, versionRegexp = /Version\/(\d+)\.(\d+)(?:\.(\d+))?.*Safari\//;
+	if (
+	  // Is browser
+	  "object" === typeof navigator &&
+	  "string" === typeof navigator.userAgent &&
+	  // Is Safari
+	  (match = versionRegexp.exec(navigator.userAgent)) &&
+	  // And uses the old websocket protocol
+	  2 === window.WebSocket.CLOSED
+	) {
+	  // Is iOS
+	  if (/iP(hone|od|ad)/.test(navigator.platform)) {
+	    // Below version 5 is broken
+	    if (+match[1] < 5) {
+	      module.exports = void(0);
+	    }
+	  // Is any other Mac OS
+	  // If you want to refactor this code, be careful, iOS user agents contain the
+	  // string "like Mac OS X".
+	  } else if (navigator.appVersion.indexOf("Mac") !== -1) {
+	    // Below version 6 is broken
+	    if (+match[1] < 6) {
+	      module.exports = void(0);
+	    }
+	  }
+	}
 
 
 /***/ },
@@ -15616,7 +15617,7 @@ var stellar =
 	 */
 
 	var base64 = __webpack_require__(66)
-	var ieee754 = __webpack_require__(62)
+	var ieee754 = __webpack_require__(61)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = Buffer
@@ -20434,7 +20435,7 @@ var stellar =
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(69)
 
-	var md5 = toConstructor(__webpack_require__(61))
+	var md5 = toConstructor(__webpack_require__(62))
 	var rmd160 = toConstructor(__webpack_require__(71))
 
 	function toConstructor (fn) {
@@ -22273,6 +22274,96 @@ var stellar =
 /* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
+	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
+	  var e, m,
+	      eLen = nBytes * 8 - mLen - 1,
+	      eMax = (1 << eLen) - 1,
+	      eBias = eMax >> 1,
+	      nBits = -7,
+	      i = isLE ? (nBytes - 1) : 0,
+	      d = isLE ? -1 : 1,
+	      s = buffer[offset + i];
+
+	  i += d;
+
+	  e = s & ((1 << (-nBits)) - 1);
+	  s >>= (-nBits);
+	  nBits += eLen;
+	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+	  m = e & ((1 << (-nBits)) - 1);
+	  e >>= (-nBits);
+	  nBits += mLen;
+	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+	  if (e === 0) {
+	    e = 1 - eBias;
+	  } else if (e === eMax) {
+	    return m ? NaN : ((s ? -1 : 1) * Infinity);
+	  } else {
+	    m = m + Math.pow(2, mLen);
+	    e = e - eBias;
+	  }
+	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+	};
+
+	exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
+	  var e, m, c,
+	      eLen = nBytes * 8 - mLen - 1,
+	      eMax = (1 << eLen) - 1,
+	      eBias = eMax >> 1,
+	      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
+	      i = isLE ? 0 : (nBytes - 1),
+	      d = isLE ? 1 : -1,
+	      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+
+	  value = Math.abs(value);
+
+	  if (isNaN(value) || value === Infinity) {
+	    m = isNaN(value) ? 1 : 0;
+	    e = eMax;
+	  } else {
+	    e = Math.floor(Math.log(value) / Math.LN2);
+	    if (value * (c = Math.pow(2, -e)) < 1) {
+	      e--;
+	      c *= 2;
+	    }
+	    if (e + eBias >= 1) {
+	      value += rt / c;
+	    } else {
+	      value += rt * Math.pow(2, 1 - eBias);
+	    }
+	    if (value * c >= 2) {
+	      e++;
+	      c /= 2;
+	    }
+
+	    if (e + eBias >= eMax) {
+	      m = 0;
+	      e = eMax;
+	    } else if (e + eBias >= 1) {
+	      m = (value * c - 1) * Math.pow(2, mLen);
+	      e = e + eBias;
+	    } else {
+	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+	      e = 0;
+	    }
+	  }
+
+	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+
+	  e = (e << mLen) | m;
+	  eLen += mLen;
+	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+
+	  buffer[offset + i - d] |= s * 128;
+	};
+
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*
 	 * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
 	 * Digest Algorithm, as defined in RFC 1321.
@@ -22427,96 +22518,6 @@ var stellar =
 
 	module.exports = function md5(buf) {
 	  return helpers.hash(buf, core_md5, 16);
-	};
-
-
-/***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
-	  var e, m,
-	      eLen = nBytes * 8 - mLen - 1,
-	      eMax = (1 << eLen) - 1,
-	      eBias = eMax >> 1,
-	      nBits = -7,
-	      i = isLE ? (nBytes - 1) : 0,
-	      d = isLE ? -1 : 1,
-	      s = buffer[offset + i];
-
-	  i += d;
-
-	  e = s & ((1 << (-nBits)) - 1);
-	  s >>= (-nBits);
-	  nBits += eLen;
-	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
-
-	  m = e & ((1 << (-nBits)) - 1);
-	  e >>= (-nBits);
-	  nBits += mLen;
-	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
-
-	  if (e === 0) {
-	    e = 1 - eBias;
-	  } else if (e === eMax) {
-	    return m ? NaN : ((s ? -1 : 1) * Infinity);
-	  } else {
-	    m = m + Math.pow(2, mLen);
-	    e = e - eBias;
-	  }
-	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
-	};
-
-	exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
-	  var e, m, c,
-	      eLen = nBytes * 8 - mLen - 1,
-	      eMax = (1 << eLen) - 1,
-	      eBias = eMax >> 1,
-	      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
-	      i = isLE ? 0 : (nBytes - 1),
-	      d = isLE ? 1 : -1,
-	      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
-
-	  value = Math.abs(value);
-
-	  if (isNaN(value) || value === Infinity) {
-	    m = isNaN(value) ? 1 : 0;
-	    e = eMax;
-	  } else {
-	    e = Math.floor(Math.log(value) / Math.LN2);
-	    if (value * (c = Math.pow(2, -e)) < 1) {
-	      e--;
-	      c *= 2;
-	    }
-	    if (e + eBias >= 1) {
-	      value += rt / c;
-	    } else {
-	      value += rt * Math.pow(2, 1 - eBias);
-	    }
-	    if (value * c >= 2) {
-	      e++;
-	      c /= 2;
-	    }
-
-	    if (e + eBias >= eMax) {
-	      m = 0;
-	      e = eMax;
-	    } else if (e + eBias >= 1) {
-	      m = (value * c - 1) * Math.pow(2, mLen);
-	      e = e + eBias;
-	    } else {
-	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-	      e = 0;
-	    }
-	  }
-
-	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
-
-	  e = (e << mLen) | m;
-	  eLen += mLen;
-	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
-
-	  buffer[offset + i - d] |= s * 128;
 	};
 
 
@@ -23515,7 +23516,7 @@ var stellar =
 	  return new Alg()
 	}
 
-	var Buffer = __webpack_require__(78).Buffer
+	var Buffer = __webpack_require__(77).Buffer
 	var Hash   = __webpack_require__(72)(Buffer)
 
 	exports.sha =
@@ -23780,7 +23781,7 @@ var stellar =
 /* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var u = __webpack_require__(77)
+	var u = __webpack_require__(78)
 	var write = u.write
 	var fill = u.zeroFill
 
@@ -24061,7 +24062,7 @@ var stellar =
 	var inherits = __webpack_require__(36).inherits
 	var BE       = false
 	var LE       = true
-	var u        = __webpack_require__(77)
+	var u        = __webpack_require__(78)
 
 	module.exports = function (Buffer, Hash) {
 
@@ -24239,48 +24240,6 @@ var stellar =
 
 /***/ },
 /* 77 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports.write = write
-	exports.zeroFill = zeroFill
-
-	exports.toString = toString
-
-	function write (buffer, string, enc, start, from, to, LE) {
-	  var l = (to - from)
-	  if(enc === 'ascii' || enc === 'binary') {
-	    for( var i = 0; i < l; i++) {
-	      buffer[start + i] = string.charCodeAt(i + from)
-	    }
-	  }
-	  else if(enc == null) {
-	    for( var i = 0; i < l; i++) {
-	      buffer[start + i] = string[i + from]
-	    }
-	  }
-	  else if(enc === 'hex') {
-	    for(var i = 0; i < l; i++) {
-	      var j = from + i
-	      buffer[start + i] = parseInt(string[j*2] + string[(j*2)+1], 16)
-	    }
-	  }
-	  else if(enc === 'base64') {
-	    throw new Error('base64 encoding not yet supported')
-	  }
-	  else
-	    throw new Error(enc +' encoding not yet supported')
-	}
-
-	//always fill to the end!
-	function zeroFill(buf, from) {
-	  for(var i = from; i < buf.length; i++)
-	    buf[i] = 0
-	}
-
-
-
-/***/ },
-/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -25441,6 +25400,48 @@ var stellar =
 	}
 	
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
+
+/***/ },
+/* 78 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports.write = write
+	exports.zeroFill = zeroFill
+
+	exports.toString = toString
+
+	function write (buffer, string, enc, start, from, to, LE) {
+	  var l = (to - from)
+	  if(enc === 'ascii' || enc === 'binary') {
+	    for( var i = 0; i < l; i++) {
+	      buffer[start + i] = string.charCodeAt(i + from)
+	    }
+	  }
+	  else if(enc == null) {
+	    for( var i = 0; i < l; i++) {
+	      buffer[start + i] = string[i + from]
+	    }
+	  }
+	  else if(enc === 'hex') {
+	    for(var i = 0; i < l; i++) {
+	      var j = from + i
+	      buffer[start + i] = parseInt(string[j*2] + string[(j*2)+1], 16)
+	    }
+	  }
+	  else if(enc === 'base64') {
+	    throw new Error('base64 encoding not yet supported')
+	  }
+	  else
+	    throw new Error(enc +' encoding not yet supported')
+	}
+
+	//always fill to the end!
+	function zeroFill(buf, from) {
+	  for(var i = from; i < buf.length; i++)
+	    buf[i] = 0
+	}
+
+
 
 /***/ },
 /* 79 */
