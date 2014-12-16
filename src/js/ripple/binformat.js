@@ -144,7 +144,8 @@ var FIELDS_MAP = exports.fields = {
     4: 'Issuer',
     7: 'Target',
     8: 'RegularKey',
-    9: 'InflationDest'
+    9: 'InflationDest',
+    10: 'SetAuthKey'
   },
   14: { // Object
     1: void(0),  //end of Object
@@ -226,7 +227,8 @@ exports.tx = {
     [ 'MessageKey'         , OPTIONAL ],
     [ 'Domain'             , OPTIONAL ],
     [ 'TransferRate'       , OPTIONAL ],
-    [ 'InflationDest'      , OPTIONAL ]
+    [ 'InflationDest'      , OPTIONAL ],
+    [ 'SetAuthKey'         , OPTIONAL ]
   ]),
   AccountMerge: [4].concat(base, [
     [ 'Destination'        , REQUIRED ]

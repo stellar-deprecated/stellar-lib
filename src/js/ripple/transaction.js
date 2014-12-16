@@ -575,6 +575,12 @@ Transaction.prototype.inflationDest = function(acc) {
   return this;
 };
 
+Transaction.prototype.setAuthKey = function(acc) {
+    this.tx_json.SetAuthKey = UInt160.json_rewrite(acc);
+
+    return this;
+};
+
 
 // Add flags to a transaction.
 // --> flags: undefined, _flag_, or [ _flags_ ]
