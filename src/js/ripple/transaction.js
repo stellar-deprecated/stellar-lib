@@ -139,7 +139,8 @@ Transaction.flags = {
   TrustSet: {
     SetAuth:            0x00010000,
     NoRipple:           0x00020000,
-    ClearNoRipple:      0x00040000
+    ClearNoRipple:      0x00040000,
+    ClearAuth:          0x00080000
   },
 
   OfferCreate: {
