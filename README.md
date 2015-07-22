@@ -1,3 +1,5 @@
+INACTIVE. This repository is not in active development. It points to the stellard network, which is being replaced by stellar-core. Please refer to the replacement repository, [js-stellar-lib](https://github.com/stellar/js-stellar-lib), which points to the [stellar-core](https://github.com/stellar/stellar-core) network.
+
 #The Stellar JavaScript Library
 
 `stellar-lib` connects to the Stellar network via the WebSocket protocol.  It runs in Node.js or in the browser.
