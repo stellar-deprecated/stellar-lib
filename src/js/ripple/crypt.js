@@ -4,9 +4,7 @@ var Seed        = require('./seed').Seed;
 var UInt160     = require('./uint160').UInt160;
 var UInt256     = require('./uint256').UInt256;
 var request     = require('superagent');
-var querystring = require('querystring');
 var extend      = require("extend");
-var parser      = require("url");
 var ripemd160   = require("ripemd160");
 var Crypt       = { };
 
